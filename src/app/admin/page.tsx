@@ -1,0 +1,292 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { 
+  Quote, Newspaper, ShoppingBag, Wallet, Settings,
+  Plus, Save, Trash2, Calendar, Clock, Upload, LogOut,
+  Image as ImageIcon, Video, Users, BookOpen, Edit2
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState("hadith");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // --- 1. HADITH LOGIC ---
+  const [hadithList, setHadithList] = useState<any[]>([]);
+  const [newHadith, setNewHadith] = useState({ content: "", narrator: "", date: new Date().toISOString().split('T')[0] });
+  const [bulkHadith, setBulkHadith] = useState("");
+
+  const fetchHadiths = async () => {
+    const { data } = await supabase.from('hadith').select('*').order('display_date', { ascending: false });
+    if (data) setHadithList(data);
+  };
+
+  const handleAddHadith = async () => {
+    if (!newHadith.content) return alert("Isi hadits!");
+    await supabase.from('hadith').insert([{ content: newHadith.content, narrator: newHadith.narrator || "HR. Muslim", display_date: newHadith.date }]);
+    setNewHadith({ content: "", narrator: "", date: new Date().toISOString().split('T')[0] });
+    fetchHadiths();
+  };
+
+  const handleBulkHadith = async () => {
+    const lines = bulkHadith.split('\n').filter(l => l.includes('|'));
+    const inserts = lines.map(line => {
+      const parts = line.split('|');
+      return {
+        display_date: parts[0]?.trim(),
+        content: parts[1]?.trim(),
+        narrator: parts[2]?.trim() || "HR. Muslim"
+      };
+    });
+    if (inserts.length > 0) {
+      await supabase.from('hadith').insert(inserts);
+      setBulkHadith("");
+      fetchHadiths();
+      alert(`Berhasil upload ${inserts.length} hadits!`);
+    }
+  };
+
+  // --- 2. KAJIAN & JUMATAN LOGIC ---
+  const [studyList, setStudyList] = useState<any[]>([]);
+  const [newStudy, setNewStudy] = useState({ title: "", speaker: "", date: "", time: "", location: "Masjid Notoparaja" });
+  const [bulkStudy, setBulkStudy] = useState("");
+  
+  const [fridayList, setFridayList] = useState<any[]>([]);
+  const [newFriday, setNewFriday] = useState({ date: "", khotib: "", imam: "", muadzin: "" });
+  const [bulkFriday, setBulkFriday] = useState("");
+
+  const fetchSchedules = async () => {
+    const { data: s } = await supabase.from('study_schedules').select('*').order('date', { ascending: false });
+    const { data: f } = await supabase.from('friday_schedules').select('*').order('date', { ascending: false });
+    if (s) setStudyList(s);
+    if (f) setFridayList(f);
+  };
+
+  const handleBulkStudy = async () => {
+    const lines = bulkStudy.split('\n').filter(l => l.includes('|'));
+    const inserts = lines.map(l => {
+      const p = l.split('|');
+      return { date: p[0]?.trim(), title: p[1]?.trim(), speaker: p[2]?.trim(), time: p[3]?.trim() || "18:30", location: "Masjid Notoparaja" };
+    });
+    await supabase.from('study_schedules').insert(inserts);
+    setBulkStudy(""); fetchSchedules(); alert("Bulk Kajian Berhasil!");
+  };
+
+  const handleBulkFriday = async () => {
+    const lines = bulkFriday.split('\n').filter(l => l.includes('|'));
+    const inserts = lines.map(l => {
+      const p = l.split('|');
+      return { date: p[0]?.trim(), khotib: p[1]?.trim(), imam: p[2]?.trim() || p[1]?.trim(), muadzin: p[3]?.trim() || "Muadzin Masjid" };
+    });
+    await supabase.from('friday_schedules').insert(inserts);
+    setBulkFriday(""); fetchSchedules(); alert("Bulk Jumat Berhasil!");
+  };
+
+  // --- 3. FINANCE LOGIC ---
+  const [financeList, setFinanceList] = useState<any[]>([]);
+  const [newFinance, setNewFinance] = useState({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "" });
+  const [editingFinance, setEditingFinance] = useState<any>(null);
+
+  const fetchFinance = async () => {
+    const { data } = await supabase.from('finance_reports').select('*').order('date', { ascending: false });
+    if (data) setFinanceList(data);
+  };
+
+  const handleAddFinance = async () => {
+    if (!newFinance.amount) return;
+    const payload = { date: newFinance.date, type: newFinance.type, amount: parseFloat(newFinance.amount), description: newFinance.description };
+    if (editingFinance) { await supabase.from('finance_reports').update(payload).eq('id', editingFinance.id); setEditingFinance(null); }
+    else { await supabase.from('finance_reports').insert([payload]); }
+    setNewFinance({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "" });
+    fetchFinance();
+  };
+
+  // --- 4. NEWS & SETTINGS ---
+  const [newsList, setNewsList] = useState<any[]>([]);
+  const [newNews, setNewNews] = useState({ title: "", category: "Kajian", content: "", image_url: "" });
+  const [settings, setSettings] = useState<any>({ mosque_name: "", address: "" });
+
+  const fetchNews = async () => {
+    const { data } = await supabase.from('news').select('*').order('id', { ascending: false });
+    if (data) setNewsList(data);
+  };
+
+  const handleAddNews = async () => {
+    await supabase.from('news').insert([newNews]);
+    setNewNews({ title: "", category: "Kajian", content: "", image_url: "" });
+    fetchNews();
+  };
+
+  // Unified Fetch
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchHadiths(); fetchSchedules(); fetchFinance(); fetchNews();
+      supabase.from('mosque_settings').select('*').single().then(({data}) => data && setSettings(data));
+    }
+  }, [isLoggedIn]);
+
+  const balance = financeList.reduce((acc, curr) => acc + (curr.type === 'income' ? parseFloat(curr.amount) : -parseFloat(curr.amount)), 0);
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 w-full max-w-md shadow-2xl text-center space-y-8 text-slate-900">
+           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto">M</div>
+           <h1 className="text-2xl font-bold font-outfit">Admin Notoparaja</h1>
+           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none" placeholder="Password" />
+           <button onClick={() => password === "1" ? setIsLoggedIn(true) : alert("Salah!")} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Login</button>
+        </div>
+      </div>
+    );
+  }
+
+  const sidebarItems = [
+    { id: "hadith", label: "Hadits Harian", icon: Quote },
+    { id: "kajian", label: "Jadwal Kajian", icon: BookOpen },
+    { id: "jumat", label: "Jadwal Jumat", icon: Users },
+    { id: "finance", label: "Keuangan", icon: Wallet },
+    { id: "news", label: "Berita & Kajian", icon: Newspaper },
+    { id: "settings", label: "Profil Masjid", icon: Settings },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-inter">
+      <aside className="w-64 border-r border-slate-200 bg-white p-6 flex flex-col gap-8">
+        <div className="font-outfit font-bold text-xl text-emerald-600 px-2">Masjid Admin</div>
+        <nav className="flex flex-col gap-2">
+          {sidebarItems.map(item => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "text-slate-500 hover:bg-slate-100"}`}>
+              <item.icon size={20} />
+              <span className="text-sm font-medium">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+        <button onClick={() => setIsLoggedIn(false)} className="mt-auto flex items-center gap-3 px-4 py-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"><LogOut size={20} /><span className="text-sm font-medium">Log Out</span></button>
+      </aside>
+
+      <main className="flex-1 p-10 overflow-y-auto">
+        <header className="flex justify-between items-end mb-12 text-left">
+          <div><h1 className="text-3xl font-bold font-outfit capitalize">{activeTab}</h1><p className="text-slate-500 text-sm">Masjid Notoparaja Yogyakarta.</p></div>
+          <div className="bg-emerald-50 border border-emerald-100 px-6 py-3 rounded-2xl">
+            <span className="text-xs font-bold text-emerald-600 block">Saldo Kas</span>
+            <span className="text-xl font-bold text-emerald-700">Rp {balance.toLocaleString('id-ID')}</span>
+          </div>
+        </header>
+
+        {/* HADITH TAB */}
+        {activeTab === "hadith" && (
+          <div className="space-y-8 text-left">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4">
+                <h2 className="text-xl font-bold text-emerald-600">Single Input</h2>
+                <textarea value={newHadith.content} onChange={(e) => setNewHadith({...newHadith, content: e.target.value})} className="w-full bg-slate-50 border rounded-xl p-3" placeholder="Isi hadits..." />
+                <input type="date" value={newHadith.date} onChange={(e) => setNewHadith({...newHadith, date: e.target.value})} className="w-full bg-slate-50 border rounded-xl p-3" />
+                <button onClick={handleAddHadith} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+              </div>
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4">
+                <h2 className="text-xl font-bold text-indigo-600">Bulk Upload (Date | Content | Narrator)</h2>
+                <textarea value={bulkHadith} onChange={(e) => setBulkHadith(e.target.value)} className="w-full bg-slate-50 border rounded-xl p-3 h-32 text-sm" placeholder="2024-05-15 | Kebersihan sebagian dari iman | HR. Muslim" />
+                <button onClick={handleBulkHadith} className="w-full bg-indigo-500 text-white py-3 rounded-xl font-bold">Import Data</button>
+              </div>
+            </div>
+            <div className="bg-white border rounded-3xl p-4">{hadithList.map(h => (<div key={h.id} className="p-3 border-b last:border-0 flex justify-between"><span>{h.display_date} - {h.content}</span><button onClick={async () => { await supabase.from('hadith').delete().eq('id', h.id); fetchHadiths(); }} className="text-rose-500"><Trash2 size={16}/></button></div>))}</div>
+          </div>
+        )}
+
+        {/* KAJIAN TAB */}
+        {activeTab === "kajian" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4">
+              <h2 className="text-xl font-bold text-emerald-600">Tambah Kajian</h2>
+              <input type="text" value={newStudy.title} onChange={(e) => setNewStudy({...newStudy, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul" />
+              <input type="date" value={newStudy.date} onChange={(e) => setNewStudy({...newStudy, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" />
+              <button onClick={async () => { await supabase.from('study_schedules').insert([newStudy]); setNewStudy({title:"", speaker:"", date:"", time:"", location:"Masjid Notoparaja"}); fetchSchedules(); }} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+            </div>
+            <div className="bg-white p-8 rounded-3xl border space-y-4">
+              <h2 className="text-xl font-bold text-indigo-600">Bulk (Date | Title | Speaker | Time)</h2>
+              <textarea value={bulkStudy} onChange={(e) => setBulkStudy(e.target.value)} className="w-full bg-slate-50 border p-3 h-32" placeholder="2024-05-15 | Tafsir Al-Quran | Ust. Ahmad | 18:30" />
+              <button onClick={handleBulkStudy} className="w-full bg-indigo-500 text-white py-3 rounded-xl font-bold">Import Bulk</button>
+            </div>
+          </div>
+        )}
+
+        {/* JUMAT TAB */}
+        {activeTab === "jumat" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4">
+              <h2 className="text-xl font-bold text-emerald-600">Tambah Jadwal Jumat</h2>
+              <input type="date" value={newFriday.date} onChange={(e) => setNewFriday({...newFriday, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" />
+              <input type="text" value={newFriday.khotib} onChange={(e) => setNewFriday({...newFriday, khotib: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Khotib" />
+              <button onClick={async () => { await supabase.from('friday_schedules').insert([newFriday]); setNewFriday({date:"", khotib:"", imam:"", muadzin:""}); fetchSchedules(); }} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+            </div>
+            <div className="bg-white p-8 rounded-3xl border space-y-4">
+              <h2 className="text-xl font-bold text-indigo-600">Bulk (Date | Khotib | Imam | Muadzin)</h2>
+              <textarea value={bulkFriday} onChange={(e) => setBulkFriday(e.target.value)} className="w-full bg-slate-50 border p-3 h-32" placeholder="2024-05-17 | Ust. Budi | Ust. Budi | Pak Muadzin" />
+              <button onClick={handleBulkFriday} className="w-full bg-indigo-500 text-white py-3 rounded-xl font-bold">Import Bulk</button>
+            </div>
+          </div>
+        )}
+
+        {/* FINANCE TAB */}
+        {activeTab === "finance" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4 h-fit">
+              <h2 className="text-xl font-bold text-emerald-600">{editingFinance ? "Edit Data" : "Input Kas"}</h2>
+              <input type="date" value={newFinance.date} onChange={(e) => setNewFinance({...newFinance, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" />
+              <input type="text" value={newFinance.description} onChange={(e) => setNewFinance({...newFinance, description: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Keterangan" />
+              <input type="number" value={newFinance.amount} onChange={(e) => setNewFinance({...newFinance, amount: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Nominal" />
+              <select value={newFinance.type} onChange={(e) => setNewFinance({...newFinance, type: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></select>
+              <button onClick={handleAddFinance} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+            </div>
+            <div className="lg:col-span-2 bg-white border rounded-3xl overflow-hidden shadow-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 border-b text-left"><tr><th className="p-4">Tanggal</th><th className="p-4">Ket</th><th className="p-4 text-right">Nominal</th><th className="p-4 text-center">Aksi</th></tr></thead>
+                <tbody className="divide-y">{financeList.map(f => (
+                  <tr key={f.id}>
+                    <td className="p-4">{f.date}</td>
+                    <td className="p-4 font-bold">{f.description}</td>
+                    <td className={`p-4 text-right font-bold ${f.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>Rp {parseFloat(f.amount).toLocaleString()}</td>
+                    <td className="p-4 text-center flex justify-center gap-2">
+                       <button onClick={() => {setEditingFinance(f); setNewFinance({date:f.date, type:f.type, amount:f.amount.toString(), description:f.description})}} className="p-2 text-indigo-500"><Edit2 size={16}/></button>
+                       <button onClick={async () => { if(confirm("Hapus?")){ await supabase.from('finance_reports').delete().eq('id', f.id); fetchFinance(); }}} className="p-2 text-rose-500"><Trash2 size={16}/></button>
+                    </td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* NEWS TAB */}
+        {activeTab === "news" && (
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
+             <div className="bg-white p-8 rounded-3xl border space-y-4">
+               <h2 className="text-xl font-bold text-emerald-600">Buat Berita</h2>
+               <input type="text" value={newNews.title} onChange={(e) => setNewNews({...newNews, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul" />
+               <select value={newNews.category} onChange={(e) => setNewNews({...newNews, category: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl"><option value="Kajian">Kajian</option><option value="Berita">Berita</option></select>
+               <textarea value={newNews.content} onChange={(e) => setNewNews({...newNews, content: e.target.value})} className="w-full bg-slate-50 border p-3 h-32" placeholder="Isi berita..." />
+               <input type="text" value={newNews.image_url} onChange={(e) => setNewNews({...newNews, image_url: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="URL Foto" />
+               <button onClick={handleAddNews} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Publish Berita</button>
+             </div>
+             <div className="space-y-4">{newsList.map(n => (<div key={n.id} className="bg-white p-4 border rounded-2xl flex gap-4"><div className="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden"><img src={n.image_url} className="w-full h-full object-cover" alt="" /></div><div className="flex-1"><h4 className="font-bold">{n.title}</h4><span className="text-xs text-emerald-500">{n.category}</span></div><button onClick={async () => { await supabase.from('news').delete().eq('id', n.id); fetchNews(); }} className="text-rose-500"><Trash2 size={16}/></button></div>))}</div>
+           </div>
+        )}
+
+        {/* SETTINGS TAB */}
+        {activeTab === "settings" && (
+           <div className="max-w-xl bg-white p-8 rounded-3xl border space-y-4 text-left">
+             <h2 className="text-xl font-bold text-emerald-600">Profil Masjid</h2>
+             <input type="text" value={settings.mosque_name} onChange={(e) => setSettings({...settings, mosque_name: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Nama Masjid" />
+             <input type="text" value={settings.qris_url} onChange={(e) => setSettings({...settings, qris_url: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Link QRIS" />
+             <textarea value={settings.address} onChange={(e) => setSettings({...settings, address: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Alamat" />
+             <button onClick={async () => { await supabase.from('mosque_settings').update(settings).eq('id', settings.id); alert("Updated!"); }} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Profil</button>
+           </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
