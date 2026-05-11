@@ -19,7 +19,7 @@ export default function Schedules() {
   }, []);
 
   return (
-    <section className="py-24 px-4 bg-slate-50">
+    <section className="py-24 px-4 bg-slate-50" id="kegiatan">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           

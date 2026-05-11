@@ -5,6 +5,8 @@ import Schedules from "@/components/Schedules";
 import Marketplace from "@/components/Marketplace";
 import News from "@/components/News";
 import Finance from "@/components/Finance";
+import Fundraising from "@/components/Fundraising";
+import Support from "@/components/Support";
 import Gallery from "@/components/Gallery";
 import Donation from "@/components/Donation";
 import { MessageSquare } from "lucide-react";
@@ -13,7 +15,7 @@ export default function Home() {
   return (
     <div className="relative">
       {/* Navigation - Floating Glass Navbar */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-5xl">
         <div className="glass-dark px-8 py-4 rounded-3xl flex items-center justify-between shadow-2xl backdrop-blur-xl border-white/10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
@@ -24,14 +26,15 @@ export default function Home() {
           
           <div className="hidden md:flex items-center gap-8 text-slate-300 text-sm font-medium">
             <a href="#" className="hover:text-emerald-400 transition-colors">Beranda</a>
-            <a href="#" className="hover:text-emerald-400 transition-colors">Marketplace</a>
-            <a href="#" className="hover:text-emerald-400 transition-colors">Keuangan</a>
-            <a href="/admin" className="text-emerald-500 font-bold hover:text-emerald-400 transition-colors border-l border-white/10 pl-8">Admin</a>
+            <a href="#kegiatan" className="hover:text-emerald-400 transition-colors">Kegiatan</a>
+            <a href="#market" className="hover:text-emerald-400 transition-colors">Pasar</a>
+            <a href="#keuangan" className="hover:text-emerald-400 transition-colors">Keuangan</a>
+            <a href="#faq" className="hover:text-emerald-400 transition-colors">Tanya Jawab</a>
           </div>
 
-          <button className="px-5 py-2 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30">
-            Login
-          </button>
+          <a href="/admin" className="px-5 py-2 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30">
+            Portal Admin
+          </a>
         </div>
       </nav>
 
@@ -40,8 +43,7 @@ export default function Home() {
 
       <PrayerTimes />
 
-      <div className="pt-20">
-        {/* Daily Hadith Section */}
+      <div className="pt-24">
         <DailyHadith />
       </div>
 
@@ -54,11 +56,17 @@ export default function Home() {
       {/* News & Multimedia Section */}
       <News />
 
-      {/* Gallery Section */}
-      <Gallery />
+      {/* Fundraising Section */}
+      <Fundraising />
 
       {/* Finance Section */}
       <Finance />
+
+      {/* Support Section */}
+      <Support />
+
+      {/* Gallery Section */}
+      <Gallery />
 
       {/* Donation Section */}
       <Donation />
