@@ -30,7 +30,7 @@ export default function Gallery() {
           </div>
           <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Galeri Kegiatan</h2>
           <p className="text-slate-500 max-w-2xl mx-auto">
-            Momen-momen bermakna dalam syiar dan ukhuwah di Masjid Notoparaja Yogyakarta.
+            Momen-momen bermakna dalam syiar dan ukhuwah di Masjid Notoprajan Yogyakarta.
           </p>
         </div>
 

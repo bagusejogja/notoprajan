@@ -21,7 +21,7 @@ export default function Home() {
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
             </div>
-            <span className="font-outfit font-bold text-white text-lg tracking-tight hidden sm:block">Informasi Masjid</span>
+            <span className="font-outfit font-bold text-white text-lg tracking-tight hidden sm:block">Informasi Masjid Notoprajan</span>
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-slate-300 text-sm font-medium">
@@ -79,7 +79,7 @@ export default function Home() {
       >
         <MessageSquare size={28} />
         <span className="absolute right-20 px-4 py-2 rounded-xl bg-white text-slate-900 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-xl pointer-events-none whitespace-nowrap">
-          Tanya Pengurus
+          Hubungi Pengurus Notoprajan
         </span>
       </a>
     </div>

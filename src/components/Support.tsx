@@ -31,7 +31,7 @@ export default function Support() {
           </div>
           <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Tanya Jawab Agama</h2>
           <p className="text-slate-500 max-w-xl mx-auto">
-            Temukan jawaban atas pertanyaan seputar ibadah dan kegiatan masjid Notoparaja Yogyakarta.
+            Temukan jawaban atas pertanyaan seputar ibadah dan kegiatan masjid Notoprajan Yogyakarta.
           </p>
         </div>
 

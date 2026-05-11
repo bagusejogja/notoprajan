@@ -112,9 +112,9 @@ export default function Schedules() {
                 <h2 className="text-3xl font-bold font-outfit text-indigo-950">Agenda Kajian</h2>
                 <p className="text-slate-500 text-sm">Jadwal tholabul 'ilmi rutin dan tematik.</p>
               </div>
-              <button className="flex items-center gap-2 text-emerald-600 font-bold text-sm hover:gap-3 transition-all">
+              <a href="#kegiatan" className="flex items-center gap-2 text-emerald-600 font-bold text-sm hover:gap-3 transition-all">
                 Lihat Semua <ArrowRight size={16} />
-              </button>
+              </a>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
