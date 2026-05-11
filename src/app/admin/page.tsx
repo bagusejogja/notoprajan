@@ -17,14 +17,39 @@ export default function AdminDashboard() {
   // --- 0. HERO SLIDES LOGIC ---
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [newSlide, setNewSlide] = useState({ title: "", subtitle: "", image_url: "", order_index: 0 });
+  const [isUploading, setIsUploading] = useState(false);
   
   const fetchHeroSlides = async () => {
     const { data } = await supabase.from('hero_slides').select('*').order('order_index', { ascending: true });
     if (data) setHeroSlides(data);
   };
 
+  const handleFileUpload = async (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    const fileName = `${Date.now()}-${file.name}`;
+    
+    // Upload to 'images' bucket
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(fileName, file);
+
+    if (error) {
+      console.error(error);
+      alert("Gagal upload! Pastikan bucket 'images' sudah dibuat di Supabase Storage.");
+    } else {
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(fileName);
+      setNewSlide({ ...newSlide, image_url: publicUrl });
+    }
+    setIsUploading(false);
+  };
+
   const handleAddSlide = async () => {
-    if (!newSlide.title || !newSlide.image_url) return alert("Isi Judul & URL Foto!");
+    if (!newSlide.title || !newSlide.image_url) return alert("Pilih Foto & Isi Judul!");
     await supabase.from('hero_slides').insert([newSlide]);
     setNewSlide({ title: "", subtitle: "", image_url: "", order_index: heroSlides.length + 1 });
     fetchHeroSlides();
@@ -209,14 +234,52 @@ export default function AdminDashboard() {
         {/* HERO SLIDER TAB */}
         {activeTab === "hero" && (
           <div className="space-y-8 text-left">
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-6">
               <h2 className="text-xl font-bold text-emerald-600">Tambah Slide Header</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul Besar" />
-                <input type="text" value={newSlide.subtitle} onChange={(e) => setNewSlide({...newSlide, subtitle: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Subjudul / Deskripsi" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Judul Besar</label>
+                  <input type="text" value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Masjid Notoprajan" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Subjudul / Deskripsi</label>
+                  <input type="text" value={newSlide.subtitle} onChange={(e) => setNewSlide({...newSlide, subtitle: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Pusat Syiar & Ukhuwah..." />
+                </div>
               </div>
-              <input type="text" value={newSlide.image_url} onChange={(e) => setNewSlide({...newSlide, image_url: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="URL Foto (https://...)" />
-              <button onClick={handleAddSlide} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20">Simpan Slide</button>
+              
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-slate-400 uppercase block">Upload Foto Header</label>
+                <div className="flex items-center gap-6">
+                  <label className="flex-1 cursor-pointer">
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 hover:border-emerald-500 transition-all text-center space-y-2">
+                      <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-600">
+                        <Upload size={20} />
+                      </div>
+                      <div className="text-sm font-medium text-slate-600">
+                        {isUploading ? "Sedang Mengunggah..." : "Pilih File Foto (JPG/PNG)"}
+                      </div>
+                      <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" disabled={isUploading} />
+                    </div>
+                  </label>
+                  
+                  {newSlide.image_url && (
+                    <div className="w-40 h-24 rounded-2xl overflow-hidden border-2 border-emerald-500 shadow-lg relative group">
+                      <img src={newSlide.image_url} className="w-full h-full object-cover" alt="Preview" />
+                      <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Save className="text-white" size={24} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button 
+                onClick={handleAddSlide} 
+                disabled={isUploading || !newSlide.image_url}
+                className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all disabled:opacity-50"
+              >
+                Simpan ke Website
+              </button>
             </div>
             <div className="bg-white border rounded-3xl overflow-hidden">
               <table className="w-full text-sm">
