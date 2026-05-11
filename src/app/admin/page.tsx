@@ -217,15 +217,21 @@ export default function AdminDashboard() {
     correction_subuh: "0", correction_dzuhur: "0", correction_ashar: "0", correction_maghrib: "0", correction_isya: "0"
   });
   const fetchSettings = async () => {
-    const { data: settings } = await supabase.from('mosque_settings').select('*');
-    if (settings) {
-      const info = { ...mosqueInfo };
-      settings.forEach(item => { 
-        const k = item.key || item.setting_key || item.name;
-        const v = item.value || item.setting_value;
-        if (k in info) info[k as keyof typeof mosqueInfo] = v;
-      });
-      setMosqueInfo(info);
+    const { data } = await supabase.from('mosque_settings').select('*').limit(1);
+    if (data && data.length > 0) {
+      const row = data[0];
+      setMosqueInfo((prev) => ({
+        ...prev,
+        name: row.mosque_name || prev.name,
+        address: row.address || prev.address,
+        qris_url: row.qris_url || prev.qris_url,
+        account_number: row.bank_account || prev.account_number,
+        correction_subuh: row.correction_subuh || "0",
+        correction_dzuhur: row.correction_dzuhur || "0",
+        correction_ashar: row.correction_ashar || "0",
+        correction_maghrib: row.correction_maghrib || "0",
+        correction_isya: row.correction_isya || "0"
+      }));
     }
   };
 
@@ -237,11 +243,29 @@ export default function AdminDashboard() {
   };
 
   const handleSaveSettings = async () => {
-    const promises = Object.entries(mosqueInfo).map(([key, value]) => 
-      supabase.from('mosque_settings').upsert({ key, value })
-    );
-    await Promise.all(promises);
-    alert("Profil Masjid & Informasi Donasi Diperbarui!");
+    const payload = {
+      mosque_name: mosqueInfo.name,
+      address: mosqueInfo.address,
+      qris_url: mosqueInfo.qris_url,
+      bank_account: mosqueInfo.account_number,
+      // Jika kolom koreksi ini belum ada di DB, Supabase mungkin akan menolak. 
+      // Kita masukkan agar siap jika User sudah menambahkan kolomnya (sesuai instruksi "ditambahkan").
+      correction_subuh: Number(mosqueInfo.correction_subuh),
+      correction_dzuhur: Number(mosqueInfo.correction_dzuhur),
+      correction_ashar: Number(mosqueInfo.correction_ashar),
+      correction_maghrib: Number(mosqueInfo.correction_maghrib),
+      correction_isya: Number(mosqueInfo.correction_isya)
+    };
+    
+    // Asumsikan row pengaturan utama ada di ID 1
+    const { error } = await supabase.from('mosque_settings').update(payload).eq('id', 1);
+    
+    if (error) {
+       console.error("Update settings error:", error);
+       alert("Gagal update. Pastikan kolom-kolom (terutama correction_*) sudah ditambahkan di tabel mosque_settings! Detail: " + error.message);
+    } else {
+       alert("Profil Masjid & Informasi Donasi Diperbarui!");
+    }
   };
 
   // --- FRIDAY SERVICE (JUMATAN) ---

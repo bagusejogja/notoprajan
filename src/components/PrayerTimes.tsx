@@ -19,31 +19,43 @@ export default function PrayerTimes() {
       const formattedGregorian = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 
       try {
-        // Safe Fetch: Fetch all settings and filter in JS to avoid 400 errors on column 'key'
-        const { data: settings } = await supabase.from('mosque_settings').select('*');
+        // Safe Fetch: Fetch all settings
+        const { data: settings } = await supabase.from('mosque_settings').select('*').limit(1);
         
         const corrections: any = {};
-        settings?.forEach(s => {
-          const k = s.key || s.setting_key || s.name;
-          const v = s.value || s.setting_value;
-          if (k && k.startsWith('correction_')) corrections[k] = Number(v) || 0;
-        });
+        if (settings && settings.length > 0) {
+          const row = settings[0];
+          // Handle old key-value schema gracefully if it still exists
+          if (row.key || row.setting_key) {
+             settings.forEach(s => {
+               const k = s.key || s.setting_key || s.name;
+               const v = s.value || s.setting_value;
+               if (k && k.startsWith('correction_')) corrections[k] = Number(v) || 0;
+             });
+          } else {
+             // Standard column schema
+             corrections['correction_subuh'] = Number(row.correction_subuh) || 0;
+             corrections['correction_dzuhur'] = Number(row.correction_dzuhur) || 0;
+             corrections['correction_ashar'] = Number(row.correction_ashar) || 0;
+             corrections['correction_maghrib'] = Number(row.correction_maghrib) || 0;
+             corrections['correction_isya'] = Number(row.correction_isya) || 0;
+          }
+        }
 
         const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1505/${dateStr}`);
         const data = await res.json();
         
-        // ... (Hijri calculation)
-        const hijriRaw = new Intl.DateTimeFormat('id-TN-u-ca-islamic-umalqura-nu-latn', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        }).format(new Date(today.getTime() + (24 * 60 * 60 * 1000)));
-
-        const hijriDate = hijriRaw
-          .replace('Zulkaidah', "Dzulq'dah")
-          .replace('Zulhijah', "Dzulhijjah")
-          .replace('Ramadan', "Ramadhan")
-          .replace('H', '').trim() + " H";
+        // Reliable Hijri calculation via Aladhan API to prevent mobile browser hydration bugs
+        const [y, m, d] = dateStr.split('/');
+        const hRes = await fetch(`https://api.aladhan.com/v1/gToH?date=${d}-${m}-${y}`);
+        const hData = await hRes.json();
+        const hijriMonths: any = {
+          "Muharram": "Muharram", "Safar": "Safar", "Rabi' al-awwal": "Rabiul Awal", "Rabi' al-thani": "Rabiul Akhir", 
+          "Jumada al-awwal": "Jumadil Awal", "Jumada al-thani": "Jumadil Akhir", "Rajab": "Rajab", "Sha'ban": "Sya'ban", 
+          "Ramadan": "Ramadhan", "Shawwal": "Syawal", "Dhu al-Qi'dah": "Dzulqa'dah", "Dhu al-Hijjah": "Dzulhijjah"
+        };
+        const hMonth = hijriMonths[hData.data.hijri.month.en] || hData.data.hijri.month.en;
+        const hijriDate = `${hData.data.hijri.day} ${hMonth} ${hData.data.hijri.year} H`;
 
         if (data.status) {
           const j = data.data.jadwal;

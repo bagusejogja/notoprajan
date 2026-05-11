@@ -18,10 +18,13 @@ export default function DailyHadith() {
   useEffect(() => {
     async function fetchHadith() {
       try {
+        const todayLocal = new Date();
+        const localDateStr = new Date(todayLocal.getTime() - (todayLocal.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        
         const { data, error } = await supabase
           .from('hadith')
           .select('*')
-          .lte('display_date', new Date().toISOString().split('T')[0])
+          .lte('display_date', localDateStr)
           .order('display_date', { ascending: false })
           .limit(1)
           .single();
@@ -54,7 +57,7 @@ export default function DailyHadith() {
               <stop offset="100%" stopColor="#78350f" />  {/* Dark Bronze */}
             </linearGradient>
 
-            <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
+            <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse" patternTransform="scale(0.35)">
               <g fill="none" strokeLinejoin="round" strokeLinecap="round">
                 {/* Layer 1: Soft Dark Base (Shadow thickness) */}
                 <g stroke="#022c22" strokeWidth="8" strokeOpacity="0.8">

@@ -11,17 +11,26 @@ export default function Donation() {
   useEffect(() => {
     async function fetchInfo() {
       // Safe Fetch: Get all settings and map manually
-      const { data } = await supabase.from('mosque_settings').select('*');
-      if (data) {
-        const info: any = {};
-        data.forEach(item => { 
-          const k = item.key || item.setting_key || item.name;
-          const v = item.value || item.setting_value;
-          if (['bank_name', 'account_number', 'account_name', 'qris_url'].includes(k)) {
-            info[k] = v;
-          }
-        });
-        setSettings((prev: any) => ({ ...prev, ...info }));
+      const { data } = await supabase.from('mosque_settings').select('*').limit(1);
+      if (data && data.length > 0) {
+        const row = data[0];
+        // Ensure backwards compatibility if the DB is still using key-value pairs
+        if (row.key || row.setting_key) {
+           const info: any = {};
+           data.forEach(item => { 
+             const k = item.key || item.setting_key || item.name;
+             const v = item.value || item.setting_value;
+             if (['bank_name', 'account_number', 'account_name', 'qris_url', 'bank_account'].includes(k)) info[k] = v;
+           });
+           setSettings((prev: any) => ({ ...prev, ...info }));
+        } else {
+           // Standard column schema
+           setSettings((prev: any) => ({ 
+              ...prev, 
+              qris_url: row.qris_url || prev.qris_url,
+              bank_account: row.bank_account || prev.bank_account
+           }));
+        }
       }
     }
     fetchInfo();
@@ -70,12 +79,14 @@ export default function Donation() {
             </div>
             <div className="space-y-4 pt-4">
               <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">{settings.bank_name}</div>
+                <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">{settings.bank_name || "Rekening Masjid"}</div>
                 <div className="text-xl font-bold text-white tracking-wide">
-                  {settings.account_number}
-                  <div className="text-sm font-medium text-slate-400 mt-1 uppercase text-emerald-400">
-                    A.N {settings.account_name}
-                  </div>
+                  {settings.bank_account || settings.account_number}
+                  {settings.account_name && (
+                    <div className="text-sm font-medium text-slate-400 mt-1 uppercase text-emerald-400">
+                      A.N {settings.account_name}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

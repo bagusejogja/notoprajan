@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Target, TrendingUp, HandCoins, Quote, Users, Calendar, Wallet } from "lucide-react";
+import { Target, TrendingUp, HandCoins, Quote, Users, Calendar, Wallet, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Fundraising() {
   const [hasMounted, setHasMounted] = useState(false);
   const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [showLogsId, setShowLogsId] = useState<number | null>(null);
 
   useEffect(() => {
     setHasMounted(true);
@@ -111,30 +112,14 @@ export default function Fundraising() {
                    </div>
                 </div>
 
-                {/* RECENT DONORS TABLE */}
-                <div className="bg-emerald-950/40 rounded-[2rem] border border-white/5 p-8 space-y-6">
-                   <div className="flex justify-between items-center">
-                      <h3 className="text-white font-bold text-xl font-outfit">Pencatatan Donatur</h3>
-                      <HandCoins size={24} className="text-amber-500" />
-                   </div>
-                   <div className="overflow-hidden">
-                      <table className="w-full text-left">
-                         <thead className="text-[10px] uppercase font-black text-emerald-500/40 border-b border-white/5">
-                            <tr><th className="pb-4">Nama Donatur</th><th className="pb-4 text-center">Via</th><th className="pb-4 text-right">Nominal</th></tr>
-                         </thead>
-                         <tbody className="divide-y divide-white/5">
-                            {campaign.logs.length > 0 ? campaign.logs.map((donor: any) => (
-                               <tr key={donor.id} className="group hover:bg-white/5 transition-colors">
-                                  <td className="py-4 font-bold text-emerald-50">{donor.donor_name}<div className="text-[9px] font-medium text-emerald-500/50 uppercase">{donor.donation_date}</div></td>
-                                  <td className="py-4 text-center"><span className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black">{donor.via}</span></td>
-                                  <td className="py-4 text-right font-black text-amber-500">Rp {formatIDR(donor.amount)}</td>
-                               </tr>
-                            )) : (
-                               <tr><td colSpan={3} className="py-8 text-center text-emerald-500/20 italic text-sm">Belum ada donasi masuk</td></tr>
-                            )}
-                         </tbody>
-                      </table>
-                   </div>
+                {/* BUTTON DETAIL DONATUR */}
+                <div className="pt-4">
+                  <button 
+                    onClick={() => setShowLogsId(campaign.id)}
+                    className="px-6 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-sm hover:bg-emerald-500/20 transition-all flex items-center gap-2"
+                  >
+                    <HandCoins size={18} /> Lihat Daftar Donatur ({campaign.logs.length})
+                  </button>
                 </div>
               </div>
 
@@ -167,6 +152,41 @@ export default function Fundraising() {
           );
         })}
       </div>
+
+      {/* DONOR MODAL */}
+      {showLogsId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#022c22] border border-white/10 p-8 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col relative shadow-2xl">
+            <button 
+              onClick={() => setShowLogsId(null)}
+              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-white font-bold text-2xl font-outfit mb-6 flex items-center gap-3">
+              <HandCoins className="text-amber-500" /> Pencatatan Donatur
+            </h3>
+            <div className="overflow-auto pr-2 flex-1">
+              <table className="w-full text-left">
+                 <thead className="text-[10px] uppercase font-black text-emerald-500/40 border-b border-white/5 sticky top-0 bg-[#022c22]">
+                    <tr><th className="pb-4">Nama Donatur</th><th className="pb-4 text-center">Via</th><th className="pb-4 text-right">Nominal</th></tr>
+                 </thead>
+                 <tbody className="divide-y divide-white/5">
+                    {campaigns.find(c => c.id === showLogsId)?.logs.length > 0 ? campaigns.find(c => c.id === showLogsId)?.logs.map((donor: any) => (
+                       <tr key={donor.id} className="group hover:bg-white/5 transition-colors">
+                          <td className="py-4 font-bold text-emerald-50">{donor.donor_name}<div className="text-[9px] font-medium text-emerald-500/50 uppercase">{donor.donation_date}</div></td>
+                          <td className="py-4 text-center"><span className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black">{donor.via}</span></td>
+                          <td className="py-4 text-right font-black text-amber-500">Rp {formatIDR(donor.amount)}</td>
+                       </tr>
+                    )) : (
+                       <tr><td colSpan={3} className="py-8 text-center text-emerald-500/20 italic text-sm">Belum ada donasi masuk</td></tr>
+                    )}
+                 </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
