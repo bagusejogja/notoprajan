@@ -60,10 +60,10 @@ export default function DailyHadith() {
         >
           {/* Main Card with Internal Pattern */}
           <div className="relative bg-[#022c22] rounded-[3.5rem] p-10 md:p-20 shadow-[0_30px_60px_rgba(2,44,34,0.2)] overflow-hidden">
-            {/* Islamic Pattern INSIDE the card only */}
-            <div className="absolute inset-0 opacity-[0.1]" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 20h20l-15 10 5 20-15-10-15 10 5-20-15-10h20z' fill='%23ffffff'/%3E%3C/svg%3E")`,
-              backgroundSize: '70px 70px'
+            {/* Authentic Islamic Geometric Pattern */}
+            <div className="absolute inset-0 opacity-[0.12]" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z M0 40l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z M80 40l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z M40 80l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23ffffff'/%3E%3Cpath d='M20 20l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9z M60 20l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9z M20 60l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9z M60 60l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9z' fill='%23ffffff'/%3E%3C/svg%3E")`,
+              backgroundSize: '100px 100px'
             }} />
             
             {/* Subtle Inner Glow */}
