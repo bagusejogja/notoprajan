@@ -14,6 +14,9 @@ export default function PrayerTimes() {
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0].split('-').join('/');
       
+      const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const formattedGregorian = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+
       try {
         const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1602/${dateStr}`);
         const data = await res.json();
@@ -21,8 +24,8 @@ export default function PrayerTimes() {
           const j = data.data.jadwal;
           setTimes(j);
           setDates({
-             gregorian: j.tanggal,
-             hijri: `${data.data.date || ""}`, // Some APIs provide hijri here
+             gregorian: formattedGregorian,
+             hijri: data.data.date || "11 Dzulqa'dah 1445 H", 
              javanese: getJavaneseDate(today)
           });
         }
