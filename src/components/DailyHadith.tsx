@@ -43,31 +43,42 @@ export default function DailyHadith() {
 
   return (
     <section className="relative min-h-[700px] flex items-center justify-center bg-[#0a0a0a] overflow-hidden py-24">
-      {/* 1. THE GIRIH PATTERN BACKGROUND (From User Image) */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-        <svg width="100%" height="100%" className="w-full h-full">
+      {/* 1. THE GIRIH PATTERN BACKGROUND (True 3D Effect) */}
+      <div className="absolute inset-0 opacity-70 pointer-events-none overflow-hidden">
+        <svg width="100%" height="100%" className="w-full h-full" style={{ filter: 'drop-shadow(8px 12px 10px rgba(0,0,0,0.9))' }}>
           <defs>
-            <pattern id="girih" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-              {/* Complex Star Geometry */}
-              <g fill="none" stroke="#d4af37" strokeWidth="0.5" strokeLinecap="round">
-                <path d="M50 0 L65 35 L100 35 L72 58 L85 100 L50 75 L15 100 L28 58 L0 35 L35 35 Z" />
-                <path d="M50 10 L60 38 L90 38 L66 56 L75 85 L50 68 L25 85 L34 56 L10 38 L40 38 Z" strokeOpacity="0.5" />
-                <circle cx="50" cy="50" r="15" strokeWidth="0.2" strokeDasharray="1 2" />
-                {/* Additional Geometric Lines for Complexity */}
-                <path d="M0 0 L100 100 M100 0 L0 100" strokeWidth="0.1" strokeOpacity="0.3" />
-                <path d="M50 0 V100 M0 50 H100" strokeWidth="0.1" strokeOpacity="0.3" />
+            <pattern id="girih3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
+              <g fill="none" strokeLinejoin="bevel">
+                {/* Layer 1: Deep Shadow (Thickest) */}
+                <g stroke="#050505" strokeWidth="16">
+                  <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
+                  <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
+                  <rect x="40" y="40" width="80" height="80" />
+                </g>
+                
+                {/* Layer 2: Base Gold */}
+                <g stroke="#b48608" strokeWidth="10">
+                  <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
+                  <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
+                  <rect x="40" y="40" width="80" height="80" />
+                </g>
+
+                {/* Layer 3: Gold Highlight (Thinnest) */}
+                <g stroke="#fde047" strokeWidth="3" strokeOpacity="0.8">
+                  <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
+                  <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
+                  <rect x="40" y="40" width="80" height="80" />
+                </g>
               </g>
             </pattern>
-            <filter id="shadow">
-              <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.8" />
-            </filter>
           </defs>
-          <rect width="100%" height="100%" fill="url(#girih)" filter="url(#shadow)" />
+          <rect width="100%" height="100%" fill="url(#girih3d)" />
         </svg>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]" />
       </div>
 
       {/* 2. ATMOSPHERIC LIGHTING */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.1),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.15),transparent_70%)]" />
       
       {/* 3. MAJESTIC GOLDEN MIHRAB ARCH */}
       <div className="absolute inset-0 flex justify-center opacity-30 pointer-events-none">
