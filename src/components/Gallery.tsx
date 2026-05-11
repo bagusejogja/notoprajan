@@ -20,25 +20,28 @@ export default function Gallery() {
 
 
   return (
-    <section className="py-24 px-4 bg-white" id="galeri">
+    <section className="py-24 pt-32 px-4 bg-white" id="galeri">
       <div className="max-w-6xl mx-auto space-y-12 text-center">
         <div className="space-y-4">
-          <h2 className="text-3xl md:text-5xl font-bold font-outfit">Galeri Kegiatan</h2>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-sm font-semibold mb-2">
+             <span>Dokumentasi</span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Galeri Kegiatan</h2>
           <p className="text-slate-500 max-w-2xl mx-auto">
-            Dokumentasi berbagai momen bermakna di Masjid Notoparaja Yogyakarta.
+            Momen-momen bermakna dalam syiar dan ukhuwah di Masjid Notoparaja Yogyakarta.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {images.length > 0 ? images.map((img) => (
-            <div key={img.id} className="group relative aspect-square rounded-[2rem] overflow-hidden shadow-lg bg-slate-100">
+            <div key={img.id} className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-xl bg-slate-200">
               <img 
-                src={img.image_url} 
+                src={img.image_url || `https://images.unsplash.com/photo-1542623024-a797a7cbd0ed?w=800`} 
                 alt={img.title} 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                <span className="text-white font-bold text-sm">{img.title}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
+                <span className="text-white font-bold text-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-500">{img.title}</span>
               </div>
             </div>
           )) : (
