@@ -44,88 +44,77 @@ export default function DailyHadith() {
     fetchHadith();
   }, []);
 
-  if (loading) return (
-    <section className="h-64 bg-slate-50 animate-pulse" />
-  );
-
-  if (!hadith) return null;
-
   return (
-    <section className="relative py-28 px-4 overflow-hidden bg-slate-50">
-      {/* Side Ornaments (Left & Right) */}
-      <div className="absolute top-0 left-0 bottom-0 w-1/4 bg-[#0a0a0a] hidden lg:block overflow-hidden">
-         <div className="absolute inset-0 opacity-20" style={{
-           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z' fill='%23d97706'/%3E%3C/svg%3E")`,
-           backgroundSize: '40px 40px'
-         }} />
-         <div className="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-amber-500/50 to-transparent" />
-      </div>
-      <div className="absolute top-0 right-0 bottom-0 w-1/4 bg-[#0a0a0a] hidden lg:block overflow-hidden">
-         <div className="absolute inset-0 opacity-20" style={{
-           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z' fill='%23d97706'/%3E%3C/svg%3E")`,
-           backgroundSize: '40px 40px'
-         }} />
-         <div className="absolute top-0 left-0 bottom-0 w-2 bg-gradient-to-r from-amber-500/50 to-transparent" />
+    <section className="relative py-24 bg-slate-100 overflow-hidden min-h-[500px] flex items-center">
+      {/* BACKGROUND DECORATION (The Side Wings) */}
+      <div className="absolute inset-0 flex">
+        {/* Left Wing */}
+        <div className="w-1/4 bg-[#0a0a0a] relative border-r-4 border-amber-500/50">
+          <div className="absolute inset-0 opacity-40" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23d97706'/%3E%3C/svg%3E")`,
+            backgroundSize: '80px 80px'
+          }} />
+          <div className="absolute top-0 right-0 bottom-0 w-24 bg-gradient-to-l from-amber-500/20 to-transparent" />
+        </div>
+        
+        {/* Center Space (Empty for the card) */}
+        <div className="flex-1 bg-[#f8f5f0]" />
+        
+        {/* Right Wing */}
+        <div className="w-1/4 bg-[#0a0a0a] relative border-l-4 border-amber-500/50">
+          <div className="absolute inset-0 opacity-40" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23d97706'/%3E%3C/svg%3E")`,
+            backgroundSize: '80px 80px'
+          }} />
+          <div className="absolute top-0 left-0 bottom-0 w-24 bg-gradient-to-r from-amber-500/20 to-transparent" />
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto w-full relative z-20 px-4">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           className="relative"
         >
-          {/* Main Content Area: Clean White/Cream */}
-          <div className="bg-white rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.1)] border border-amber-100 overflow-hidden relative">
+          {/* Main Content Card (The Podium) */}
+          <div className="bg-white rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.15)] border-x-8 border-amber-500/10 overflow-hidden relative min-h-[350px] flex items-center justify-center">
             
-            {/* Hanging Lanterns Decoration */}
-            <div className="absolute top-0 left-12 w-0.5 h-20 bg-amber-500/30">
-               <div className="absolute -bottom-4 -left-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white shadow-lg">
-                 <div className="w-2 h-4 bg-white/50 rounded-sm" />
-               </div>
+            {/* Hanging Lanterns (More realistic) */}
+            <div className="absolute top-0 left-8 md:left-20 flex flex-col items-center">
+              <div className="w-0.5 h-24 bg-amber-600/40" />
+              <div className="w-8 h-10 bg-amber-500 rounded-t-full rounded-b-lg border-2 border-amber-300 shadow-lg shadow-amber-500/40" />
             </div>
-            <div className="absolute top-0 right-12 w-0.5 h-32 bg-amber-500/30">
-               <div className="absolute -bottom-4 -left-3 w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center text-white shadow-lg">
-                 <div className="w-2 h-4 bg-white/50 rounded-sm" />
-               </div>
+            <div className="absolute top-0 right-8 md:right-20 flex flex-col items-center">
+              <div className="w-0.5 h-32 bg-amber-600/40" />
+              <div className="w-8 h-10 bg-amber-600 rounded-t-full rounded-b-lg border-2 border-amber-400 shadow-lg shadow-amber-600/40" />
             </div>
 
-            {/* Inner Content */}
-            <div className="px-10 py-20 md:px-24 md:py-28 text-center space-y-10">
+            {/* Hadith Content */}
+            <div className="px-8 py-16 md:px-24 text-center space-y-10">
               <div className="flex justify-center">
-                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-xs font-black uppercase tracking-[0.3em]">
+                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black uppercase tracking-[0.4em]">
                   <Quote size={14} className="fill-current" />
-                  Hadits Hari Ini
+                  Mutiara Hadits
                 </div>
               </div>
 
-              <h2 className="text-3xl md:text-5xl font-medium text-slate-800 leading-relaxed font-outfit italic">
+              <h2 className="text-2xl md:text-4xl font-medium text-slate-800 leading-relaxed font-outfit italic">
                 "{hadith.content}"
               </h2>
               
-              <div className="flex flex-col items-center gap-6 pt-4">
-                <div className="flex items-center gap-4 w-32">
-                   <div className="h-px flex-1 bg-amber-300" />
-                   <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                   <div className="h-px flex-1 bg-amber-300" />
-                </div>
+              <div className="flex flex-col items-center gap-6">
+                <div className="h-0.5 w-16 bg-amber-500/30" />
                 <div className="space-y-1">
-                  <p className="text-amber-600 font-black tracking-widest uppercase text-sm">
+                  <p className="text-amber-600 font-black tracking-widest uppercase text-xs md:text-sm">
                     {hadith.narrator}
                   </p>
-                  <p className="text-slate-400 text-xs italic">
+                  <p className="text-slate-400 text-[10px] md:text-xs italic">
                     {hadith.source}
                   </p>
                 </div>
               </div>
             </div>
-
-            {/* Bottom Arch Decoration */}
-            <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-amber-500/10 to-transparent" />
           </div>
-
-          {/* Decorative Side Wings (Arch feel) */}
-          <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-64 bg-amber-500 rounded-full blur-3xl opacity-10" />
-          <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-64 bg-amber-500 rounded-full blur-3xl opacity-10" />
         </motion.div>
       </div>
     </section>
