@@ -5,17 +5,26 @@ import { Heart, CreditCard, QrCode } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Donation() {
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<any>({ bank_name: "BSI", account_number: "-", account_name: "Masjid Notoprajan", qris_url: "" });
+  const [campaigns, setCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetchSettings() {
-      const { data } = await supabase
-        .from('mosque_settings')
-        .select('*')
-        .single();
-      if (data) setSettings(data);
+    async function fetchInfo() {
+      // Safe Fetch: Get all settings and map manually
+      const { data } = await supabase.from('mosque_settings').select('*');
+      if (data) {
+        const info: any = {};
+        data.forEach(item => { 
+          const k = item.key || item.setting_key || item.name;
+          const v = item.value || item.setting_value;
+          if (['bank_name', 'account_number', 'account_name', 'qris_url'].includes(k)) {
+            info[k] = v;
+          }
+        });
+        setSettings(prev => ({ ...prev, ...info }));
+      }
     }
-    fetchSettings();
+    fetchInfo();
   }, []);
 
   return (
@@ -42,12 +51,12 @@ export default function Donation() {
               <h3 className="text-xl font-bold text-white">Donasi via QRIS</h3>
               <p className="text-slate-400 text-sm">Scan kode QR di bawah menggunakan aplikasi pembayaran apapun.</p>
             </div>
-            <div className="bg-white p-4 rounded-2xl w-48 h-48 mx-auto md:mx-0">
-               <img 
-                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(settings?.qris_url || "DonasiMasjid")}`} 
-                 alt="QRIS" 
-                 className="w-full h-full" 
-               />
+            <div className="bg-white p-4 rounded-2xl w-48 h-48 mx-auto md:mx-0 flex items-center justify-center">
+               {settings.qris_url ? (
+                 <img src={settings.qris_url} alt="QRIS" className="w-full h-full object-contain" />
+               ) : (
+                 <QrCode size={64} className="text-slate-200" />
+               )}
             </div>
           </div>
 
@@ -61,14 +70,13 @@ export default function Donation() {
             </div>
             <div className="space-y-4 pt-4">
               <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">Informasi Rekening</div>
+                <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">{settings.bank_name}</div>
                 <div className="text-xl font-bold text-white tracking-wide">
-                  {settings?.bank_account?.split(' a.n ')[0] || "BSI 7264867848"}
-                  <div className="text-sm font-medium text-slate-400 mt-1 uppercase">
-                    a.n {settings?.bank_account?.split(' a.n ')[1] || "Masjid Notoprajan"}
+                  {settings.account_number}
+                  <div className="text-sm font-medium text-slate-400 mt-1 uppercase text-emerald-400">
+                    A.N {settings.account_name}
                   </div>
                 </div>
-                <div className="text-sm text-emerald-400 mt-1">Donasi Pembangunan & Operasional</div>
               </div>
             </div>
           </div>

@@ -26,16 +26,38 @@ export default function Support() {
 
   useEffect(() => {
     async function fetchFaqs() {
-      const { data } = await supabase.from('mosque_settings').select('value').eq('key', 'faqs').single();
-      if (data && data.value && data.value.length > 0) {
-        setFaqs(data.value);
+      // Try 'faqs' then 'faq' then 'mosque_settings'
+      let { data, error } = await supabase.from('faqs').select('*').order('id', { ascending: true });
+      
+      if (error || !data) {
+        const { data: singularData, error: singularError } = await supabase.from('faq').select('*').order('id', { ascending: true });
+        if (!singularError && singularData) data = singularData;
+      }
+
+      // Fallback if dedicated tables don't exist
+      if (!data || data.length === 0) {
+        const { data: settings } = await supabase.from('mosque_settings').select('*');
+        const faqSetting = settings?.find(s => (s.key || s.setting_key || s.name) === 'faqs');
+        if (faqSetting && faqSetting.value) {
+          data = typeof faqSetting.value === 'string' ? JSON.parse(faqSetting.value) : faqSetting.value;
+        }
+      }
+
+      if (data && data.length > 0) {
+        const formatted = data.map((item: any) => ({ 
+          q: item.question || item.q || item.pertanyaan, 
+          a: item.answer || item.a || item.jawaban 
+        }));
+        setFaqs(formatted);
       }
     }
     fetchFaqs();
   }, []);
 
+  if (faqs.length === 0) return null;
+
   return (
-    <section className="py-24 px-4 bg-white" id="faq">
+    <section className="py-24 px-4 bg-white relative" id="faq">
       <div className="max-w-4xl mx-auto">
         <div className="text-center space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold">

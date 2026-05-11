@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Clock, MapPin, Calendar as CalIcon } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function PrayerTimes() {
   const [times, setTimes] = useState<any>(null);
@@ -18,22 +19,53 @@ export default function PrayerTimes() {
       const formattedGregorian = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 
       try {
+        // Safe Fetch: Fetch all settings and filter in JS to avoid 400 errors on column 'key'
+        const { data: settings } = await supabase.from('mosque_settings').select('*');
+        
+        const corrections: any = {};
+        settings?.forEach(s => {
+          const k = s.key || s.setting_key || s.name;
+          const v = s.value || s.setting_value;
+          if (k && k.startsWith('correction_')) corrections[k] = Number(v) || 0;
+        });
+
         const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1505/${dateStr}`);
         const data = await res.json();
         
-        // Dynamic Hijri Calculation with +1 day adjustment
-        const hijriDate = new Intl.DateTimeFormat('id-TN-u-ca-islamic-umalqura-nu-latn', {
+        // ... (Hijri calculation)
+        const hijriRaw = new Intl.DateTimeFormat('id-TN-u-ca-islamic-umalqura-nu-latn', {
           day: 'numeric',
           month: 'long',
           year: 'numeric'
-        }).format(new Date(today.getTime() + (24 * 60 * 60 * 1000))); // +1 day adjustment
+        }).format(new Date(today.getTime() + (24 * 60 * 60 * 1000)));
+
+        const hijriDate = hijriRaw
+          .replace('Zulkaidah', "Dzulq'dah")
+          .replace('Zulhijah', "Dzulhijjah")
+          .replace('Ramadan', "Ramadhan")
+          .replace('H', '').trim() + " H";
 
         if (data.status) {
           const j = data.data.jadwal;
-          setTimes(j);
+          
+          // Apply individual corrections
+          const correctedTimes = { ...j };
+          const map = { subuh: 'correction_subuh', dzuhur: 'correction_dzuhur', ashar: 'correction_ashar', maghrib: 'correction_maghrib', isya: 'correction_isya' };
+          
+          Object.entries(map).forEach(([timeKey, settingKey]) => {
+            if (correctedTimes[timeKey]) {
+              const [h, m] = correctedTimes[timeKey].split(':').map(Number);
+              const corr = corrections[settingKey] || 0;
+              const d = new Date();
+              d.setHours(h, m + corr, 0);
+              correctedTimes[timeKey] = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+            }
+          });
+
+          setTimes(correctedTimes);
           setDates({
              gregorian: formattedGregorian,
-             hijri: hijriDate.replace('H', '').trim() + " H", 
+             hijri: hijriDate, 
              javanese: getJavaneseDate(today)
           });
         }

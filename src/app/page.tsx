@@ -9,6 +9,7 @@ import Fundraising from "@/components/Fundraising";
 import Support from "@/components/Support";
 import Gallery from "@/components/Gallery";
 import Donation from "@/components/Donation";
+import FridayService from "@/components/FridayService";
 import { MessageSquare } from "lucide-react";
 
 export default function Home() {
@@ -47,6 +48,8 @@ export default function Home() {
       <div className="pt-24">
         <DailyHadith />
       </div>
+
+      <FridayService />
 
       {/* Schedules Section */}
       <Schedules />

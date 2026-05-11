@@ -77,7 +77,17 @@ export default function Schedules() {
                     </div>
                     <div className="text-left">
                       <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Khotib</span>
-                      <span className="text-xl font-bold">{friday?.khotib || "-"}</span>
+                      <span className="text-xl font-bold">{friday?.kotib || friday?.khotib || "-"}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
+                      <User size={20} className="text-emerald-400" />
+                    </div>
+                    <div className="text-left">
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Tema</span>
+                      <span className="text-xl font-bold">{friday?.tema || friday?.theme || "-"}</span>
                     </div>
                   </div>
 

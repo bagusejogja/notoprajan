@@ -11,13 +11,17 @@ export default function Finance() {
   useEffect(() => {
     async function fetchFinance() {
       const { data } = await supabase
-        .from('finance_reports')
+        .from('financial_reports')
         .select('*');
       
       if (data) {
-        const income = data.filter(f => f.type === 'income').reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
-        const expense = data.filter(f => f.type === 'expense').reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
-        setStats({ income, expense, balance: income - expense });
+        const totalIncome = data.reduce((acc, curr) => acc + (Number(curr.total_income) || 0), 0);
+        const totalExpense = data.reduce((acc, curr) => acc + (Number(curr.total_expenditure) || 0), 0);
+        setStats({ 
+          income: totalIncome, 
+          expense: totalExpense, 
+          balance: totalIncome - totalExpense 
+        });
         setFinance(data);
       }
     }
@@ -34,9 +38,12 @@ export default function Finance() {
               <span>Transparansi</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Laporan Keuangan</h2>
-            <p className="text-slate-500 max-w-md">
-              Amanah jamaah adalah prioritas kami. Seluruh laporan keuangan dapat diakses secara transparan.
-            </p>
+            <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-2xl max-w-md">
+               <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Amanah Jamaah</h4>
+               <p className="text-slate-600 text-sm italic">
+                  "Harta tidak akan berkurang karena sedekah." (HR. Muslim)
+               </p>
+            </div>
           </div>
           
           <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-indigo-950 hover:bg-slate-50 transition-all shadow-sm">
@@ -82,17 +89,10 @@ export default function Finance() {
                 </div>
 
                 <div className="pt-8 border-t border-white/10">
-                   <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-4">Amanah Jamaah</h4>
-                   <p className="text-slate-400 text-sm leading-relaxed italic">
-                     "Harta tidak akan berkurang karena sedekah." (HR. Muslim)
-                   </p>
-                </div>
-
-                <div className="pt-4 space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Update Terakhir</span>
-                    <span className="text-slate-300 font-medium">{new Date().toLocaleDateString('id-ID')}</span>
-                  </div>
+                   <div className="flex justify-between items-center text-xs">
+                     <span className="text-slate-500">Update Terakhir</span>
+                     <span className="text-slate-300 font-medium">{new Date().toLocaleDateString('id-ID')}</span>
+                   </div>
                 </div>
               </div>
             </div>
