@@ -33,7 +33,7 @@ export default function PrayerTimes() {
           setTimes(j);
           setDates({
              gregorian: formattedGregorian,
-             hijri: hijriDate + " H", 
+             hijri: hijriDate.replace('H', '').trim() + " H", 
              javanese: getJavaneseDate(today)
           });
         }
