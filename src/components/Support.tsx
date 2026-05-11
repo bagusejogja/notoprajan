@@ -1,9 +1,11 @@
 "use client";
 
 import { MessageSquare, HelpCircle, ChevronDown, Mail } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const FAQS = [
+import { supabase } from "@/lib/supabase";
+
+const FALLBACK_FAQS = [
   {
     q: "Bagaimana cara mendaftarkan anak ke TPA Masjid?",
     a: "Pendaftaran santri baru TPA dibuka setiap hari Senin - Kamis pukul 16.00 di sekretariat masjid. Persyaratan cukup membawa fotokopi KK."
@@ -20,6 +22,17 @@ const FAQS = [
 
 export default function Support() {
   const [open, setOpen] = useState<number | null>(null);
+  const [faqs, setFaqs] = useState<any[]>(FALLBACK_FAQS);
+
+  useEffect(() => {
+    async function fetchFaqs() {
+      const { data } = await supabase.from('mosque_settings').select('value').eq('key', 'faqs').single();
+      if (data && data.value && data.value.length > 0) {
+        setFaqs(data.value);
+      }
+    }
+    fetchFaqs();
+  }, []);
 
   return (
     <section className="py-24 px-4 bg-white" id="faq">
@@ -36,7 +49,7 @@ export default function Support() {
         </div>
 
         <div className="space-y-4 text-left">
-          {FAQS.map((faq, i) => (
+          {faqs.map((faq, i) => (
             <div key={i} className="border border-slate-100 rounded-3xl overflow-hidden transition-all">
               <button 
                 onClick={() => setOpen(open === i ? null : i)}

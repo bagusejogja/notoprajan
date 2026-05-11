@@ -63,7 +63,7 @@ export default function AdminDashboard() {
 
   // --- 2. GALLERY LOGIC ---
   const [galleryList, setGalleryList] = useState<any[]>([]);
-  const [newGallery, setNewGallery] = useState({ title: "", image_url: "" });
+  const [newGalleryTitle, setNewGalleryTitle] = useState("");
 
   const fetchGallery = async () => {
     const { data } = await supabase.from('gallery').select('*').order('id', { ascending: false });
@@ -71,10 +71,12 @@ export default function AdminDashboard() {
   };
 
   const onGalleryUpload = async (e: any) => {
+    if (!newGalleryTitle) return alert("Isi judul kegiatan terlebih dahulu!");
     setIsUploading(true);
     const url = await handleFileUpload(e.target.files[0], "gallery");
     if (url) {
-      await supabase.from('gallery').insert([{ title: e.target.files[0].name.split('.')[0], image_url: url }]);
+      await supabase.from('gallery').insert([{ title: newGalleryTitle, image_url: url }]);
+      setNewGalleryTitle("");
       fetchGallery();
     }
     setIsUploading(false);
@@ -82,7 +84,7 @@ export default function AdminDashboard() {
 
   // --- 3. HADITH LOGIC ---
   const [hadithList, setHadithList] = useState<any[]>([]);
-  const [newHadith, setNewHadith] = useState({ content: "", narrator: "", date: new Date().toISOString().split('T')[0] });
+  const [newHadith, setNewHadith] = useState({ content: "", narrator: "", source: "", display_date: new Date().toISOString().split('T')[0] });
   
   const fetchHadiths = async () => {
     const { data } = await supabase.from('hadith').select('*').order('display_date', { ascending: false });
@@ -105,16 +107,66 @@ export default function AdminDashboard() {
     setIsUploading(false);
   };
 
-  // ... Finance, Schedules, etc. ...
+  // --- 5. FINANCE LOGIC ---
   const [financeList, setFinanceList] = useState<any[]>([]);
+  const [newFinance, setNewFinance] = useState({ title: "", report_date: new Date().toISOString().split('T')[0], total_income: "", total_expenditure: "", category: "Kas Masjid" });
+  
   const fetchFinance = async () => {
-    const { data } = await supabase.from('finance_reports').select('*').order('date', { ascending: false });
+    const { data } = await supabase.from('financial_reports').select('*').order('report_date', { ascending: false });
     if (data) setFinanceList(data);
+  };
+
+  const saveFinance = async () => {
+    if (!newFinance.title) return alert("Judul wajib diisi");
+    const payload = { ...newFinance, total_income: Number(newFinance.total_income) || 0, total_expenditure: Number(newFinance.total_expenditure) || 0 };
+    await supabase.from('financial_reports').insert([payload]);
+    setNewFinance({ title: "", report_date: new Date().toISOString().split('T')[0], total_income: "", total_expenditure: "", category: "Kas Masjid" });
+    fetchFinance();
+  };
+
+  // --- 6. DONATION LOGIC ---
+  const [donationList, setDonationList] = useState<any[]>([]);
+  const [newDonation, setNewDonation] = useState({ title: "", description: "", target_amount: "", current_amount: "", deadline: "" });
+
+  const fetchDonations = async () => {
+    const { data } = await supabase.from('donation_campaigns').select('*').order('created_at', { ascending: false });
+    if (data) setDonationList(data);
+  };
+
+  const saveDonation = async () => {
+    if (!newDonation.title) return alert("Judul wajib diisi");
+    const payload = { ...newDonation, target_amount: Number(newDonation.target_amount) || 0, current_amount: Number(newDonation.current_amount) || 0 };
+    await supabase.from('donation_campaigns').insert([payload]);
+    setNewDonation({ title: "", description: "", target_amount: "", current_amount: "", deadline: "" });
+    fetchDonations();
+  };
+
+  // --- 7. QA (FAQ) LOGIC ---
+  const [faqs, setFaqs] = useState<any[]>([]);
+  const [newFaq, setNewFaq] = useState({ q: "", a: "" });
+
+  const fetchFaqs = async () => {
+    const { data } = await supabase.from('mosque_settings').select('value').eq('key', 'faqs').single();
+    if (data && data.value) setFaqs(data.value);
+  };
+
+  const saveFaq = async () => {
+    if (!newFaq.q || !newFaq.a) return alert("Pertanyaan dan Jawaban wajib diisi");
+    const updatedFaqs = [...faqs, newFaq];
+    await supabase.from('mosque_settings').upsert({ key: 'faqs', value: updatedFaqs });
+    setNewFaq({ q: "", a: "" });
+    fetchFaqs();
+  };
+
+  const deleteFaq = async (index: number) => {
+    const updatedFaqs = faqs.filter((_, i) => i !== index);
+    await supabase.from('mosque_settings').upsert({ key: 'faqs', value: updatedFaqs });
+    fetchFaqs();
   };
 
   useEffect(() => {
     if (isLoggedIn) {
-      fetchHadiths(); fetchHeroSlides(); fetchGallery(); fetchNews(); fetchFinance();
+      fetchHadiths(); fetchHeroSlides(); fetchGallery(); fetchNews(); fetchFinance(); fetchDonations(); fetchFaqs();
     }
   }, [isLoggedIn]);
 
@@ -224,21 +276,71 @@ export default function AdminDashboard() {
         {/* GALLERY */}
         {activeTab === "gallery" && (
           <div className="space-y-8 text-left">
-            <div className="bg-white p-8 rounded-3xl border border-dashed border-emerald-200 text-center space-y-4">
-              <input type="file" onChange={onGalleryUpload} className="hidden" id="gal-up" />
-              <label htmlFor="gal-up" className="cursor-pointer block p-12 hover:bg-emerald-50 transition-colors rounded-2xl">
-                <ImageIcon className="mx-auto text-emerald-500 mb-4" size={48} />
-                <p className="font-bold text-emerald-700">{isUploading ? "Mengirim ke Cloudflare..." : "Klik untuk Upload Foto Galeri"}</p>
-                <p className="text-slate-400 text-xs">Foto akan otomatis masuk ke folder notoprajan/gallery</p>
-              </label>
+            <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-4">
+              <h2 className="text-xl font-bold text-emerald-600">Tambah Foto Galeri</h2>
+              <input 
+                type="text" 
+                value={newGalleryTitle} 
+                onChange={(e) => setNewGalleryTitle(e.target.value)} 
+                className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500" 
+                placeholder="Tulis Judul Kegiatan (Contoh: Kerja Bakti, Pemeriksaan Kesehatan)..." 
+              />
+              <div className={`border-2 border-dashed border-emerald-200 text-center transition-colors rounded-2xl ${newGalleryTitle ? 'bg-emerald-50' : 'bg-slate-50 opacity-50 cursor-not-allowed'}`}>
+                <input type="file" onChange={onGalleryUpload} className="hidden" id="gal-up" disabled={!newGalleryTitle} />
+                <label htmlFor="gal-up" className={`block p-12 ${newGalleryTitle ? 'cursor-pointer hover:bg-emerald-100' : 'cursor-not-allowed'}`}>
+                  <ImageIcon className="mx-auto text-emerald-500 mb-4" size={48} />
+                  <p className="font-bold text-emerald-700">{isUploading ? "Mengirim ke Cloudflare..." : newGalleryTitle ? "Klik untuk Upload Foto" : "Isi judul kegiatan dulu sebelum upload"}</p>
+                </label>
+              </div>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {galleryList.map(g => (
-                <div key={g.id} className="relative group aspect-square rounded-2xl overflow-hidden shadow-md">
-                  <img src={g.image_url} className="w-full h-full object-cover" />
+                <div key={g.id} className="relative group rounded-2xl overflow-hidden shadow-md bg-white border border-slate-100 flex flex-col">
+                  <div className="aspect-square w-full">
+                    <img src={g.image_url} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-3 text-center text-sm font-bold text-slate-700 bg-white border-t border-slate-100 line-clamp-1">{g.title}</div>
                   <button onClick={async () => { await supabase.from('gallery').delete().eq('id', g.id); fetchGallery(); }} className="absolute top-2 right-2 p-2 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16}/></button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* HADITH */}
+        {activeTab === "hadith" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-4">
+              <h2 className="text-xl font-bold text-emerald-600">Update Hadits Harian</h2>
+              <textarea 
+                value={newHadith.content} 
+                onChange={(e) => setNewHadith({...newHadith, content: e.target.value})} 
+                className="w-full bg-slate-50 border p-4 rounded-xl h-32 focus:outline-none" 
+                placeholder="Isi Hadits..." 
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <input type="text" value={newHadith.narrator} onChange={(e) => setNewHadith({...newHadith, narrator: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Perawi (Contoh: HR. Bukhari)" />
+                <input type="text" value={newHadith.source} onChange={(e) => setNewHadith({...newHadith, source: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Sumber/Kitab (Opsional)" />
+              </div>
+              <input type="date" value={newHadith.display_date} onChange={(e) => setNewHadith({...newHadith, display_date: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" />
+              <button onClick={async () => { await supabase.from('hadith').insert([newHadith]); setNewHadith({content:"", narrator:"", source:"", display_date: new Date().toISOString().split('T')[0]}); fetchHadiths(); }} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Hadits</button>
+            </div>
+            
+            <div className="bg-white border rounded-3xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50"><tr><th className="p-4 text-left font-bold">Tanggal</th><th className="p-4 text-left font-bold">Hadits</th><th className="p-4 text-center font-bold">Aksi</th></tr></thead>
+                <tbody className="divide-y">
+                  {hadithList.map(h => (
+                    <tr key={h.id} className="hover:bg-slate-50">
+                      <td className="p-4 whitespace-nowrap">{h.display_date}</td>
+                      <td className="p-4"><div className="font-bold">{h.narrator}</div><div className="text-slate-500 line-clamp-2">{h.content}</div></td>
+                      <td className="p-4 text-center">
+                        <button onClick={async () => { await supabase.from('hadith').delete().eq('id', h.id); fetchHadiths(); }} className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100"><Trash2 size={16}/></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -271,16 +373,38 @@ export default function AdminDashboard() {
             <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
               <h2 className="text-xl font-bold text-emerald-600">Input Laporan Keuangan</h2>
               <div className="grid grid-cols-2 gap-4">
-                <input type="text" className="bg-slate-50 border p-3 rounded-xl" placeholder="Judul Laporan (Misal: Infaq Jumat 12 Mei)" />
-                <input type="date" className="bg-slate-50 border p-3 rounded-xl" />
-                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Total Pemasukan (Rp)" />
-                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Total Pengeluaran (Rp)" />
-                <input type="text" className="col-span-2 bg-slate-50 border p-3 rounded-xl" placeholder="Kategori (Kas Masjid / Zakat / Sosial)" />
+                <input type="text" value={newFinance.title} onChange={(e) => setNewFinance({...newFinance, title: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Judul (Misal: Infaq Jumat 12 Mei)" />
+                <input type="date" value={newFinance.report_date} onChange={(e) => setNewFinance({...newFinance, report_date: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" />
+                <input type="number" value={newFinance.total_income} onChange={(e) => setNewFinance({...newFinance, total_income: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Total Pemasukan (Rp)" />
+                <input type="number" value={newFinance.total_expenditure} onChange={(e) => setNewFinance({...newFinance, total_expenditure: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Total Pengeluaran (Rp)" />
+                <select value={newFinance.category} onChange={(e) => setNewFinance({...newFinance, category: e.target.value})} className="col-span-2 bg-slate-50 border p-4 rounded-xl">
+                  <option value="Kas Masjid">Kas Masjid / Operasional</option>
+                  <option value="Zakat">Zakat & Fidyah</option>
+                  <option value="Sosial">Dana Sosial / Anak Yatim</option>
+                </select>
               </div>
-              <button className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Laporan</button>
+              <button onClick={saveFinance} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Laporan</button>
             </div>
-            <div className="bg-white border rounded-3xl p-4 text-center text-slate-500 italic py-10">
-              Belum ada data keuangan yang diinput.
+            
+            <div className="bg-white border rounded-3xl overflow-hidden">
+              {financeList.length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50"><tr><th className="p-4 text-left">Tanggal</th><th className="p-4 text-left">Keterangan</th><th className="p-4 text-right">Pemasukan</th><th className="p-4 text-right">Pengeluaran</th><th className="p-4 text-center">Aksi</th></tr></thead>
+                  <tbody className="divide-y">
+                    {financeList.map(f => (
+                      <tr key={f.id} className="hover:bg-slate-50">
+                        <td className="p-4">{f.report_date}</td>
+                        <td className="p-4"><div className="font-bold">{f.title}</div><div className="text-xs text-emerald-600">{f.category}</div></td>
+                        <td className="p-4 text-right text-emerald-600 font-bold">Rp {Number(f.total_income).toLocaleString('id-ID')}</td>
+                        <td className="p-4 text-right text-rose-500 font-bold">Rp {Number(f.total_expenditure).toLocaleString('id-ID')}</td>
+                        <td className="p-4 text-center"><button onClick={async () => { await supabase.from('financial_reports').delete().eq('id', f.id); fetchFinance(); }} className="p-2 bg-rose-50 text-rose-600 rounded-lg"><Trash2 size={16}/></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-center text-slate-500 italic py-10">Belum ada data keuangan yang diinput.</div>
+              )}
             </div>
           </div>
         )}
@@ -290,14 +414,28 @@ export default function AdminDashboard() {
           <div className="space-y-8 text-left">
             <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
               <h2 className="text-xl font-bold text-emerald-600">Kelola Donasi Khusus</h2>
-              <input type="text" className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul Program (Misal: Renovasi Atap)" />
-              <textarea className="w-full bg-slate-50 border p-3 h-24 rounded-xl" placeholder="Deskripsi Singkat..." />
+              <input type="text" value={newDonation.title} onChange={(e) => setNewDonation({...newDonation, title: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Judul Program (Misal: Renovasi Atap)" />
+              <textarea value={newDonation.description} onChange={(e) => setNewDonation({...newDonation, description: e.target.value})} className="w-full bg-slate-50 border p-4 h-24 rounded-xl" placeholder="Deskripsi Singkat..." />
               <div className="grid grid-cols-3 gap-4">
-                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Target Donasi (Rp)" />
-                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Terkumpul (Rp)" />
-                <input type="text" className="bg-slate-50 border p-3 rounded-xl" placeholder="Batas Waktu (Contoh: 20 Mei 2024)" />
+                <input type="number" value={newDonation.target_amount} onChange={(e) => setNewDonation({...newDonation, target_amount: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Target Donasi (Rp)" />
+                <input type="number" value={newDonation.current_amount} onChange={(e) => setNewDonation({...newDonation, current_amount: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Terkumpul (Rp)" />
+                <input type="text" value={newDonation.deadline} onChange={(e) => setNewDonation({...newDonation, deadline: e.target.value})} className="bg-slate-50 border p-4 rounded-xl" placeholder="Batas Waktu (Contoh: 20 Mei 2024)" />
               </div>
-              <button className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Update Program Donasi</button>
+              <button onClick={saveDonation} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Buka Program Donasi</button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {donationList.map(d => (
+                 <div key={d.id} className="bg-white p-6 rounded-3xl border shadow-sm space-y-4 relative">
+                   <button onClick={async () => { await supabase.from('donation_campaigns').delete().eq('id', d.id); fetchDonations(); }} className="absolute top-4 right-4 p-2 bg-rose-50 text-rose-500 rounded-lg"><Trash2 size={16}/></button>
+                   <h3 className="font-bold text-lg pr-10">{d.title}</h3>
+                   <div className="w-full bg-slate-100 rounded-full h-2"><div className="bg-emerald-500 h-2 rounded-full" style={{width: `${Math.min(100, (d.current_amount/d.target_amount)*100)}%`}}></div></div>
+                   <div className="flex justify-between text-sm">
+                     <span className="text-emerald-600 font-bold">Terkumpul: Rp {Number(d.current_amount).toLocaleString('id-ID')}</span>
+                     <span className="text-slate-500">Target: Rp {Number(d.target_amount).toLocaleString('id-ID')}</span>
+                   </div>
+                 </div>
+               ))}
             </div>
           </div>
         )}
@@ -305,10 +443,24 @@ export default function AdminDashboard() {
         {/* QA */}
         {activeTab === "qa" && (
           <div className="space-y-8 text-left">
-            <div className="bg-white p-8 rounded-3xl border shadow-sm text-center py-20">
-              <MessageCircle size={64} className="mx-auto text-emerald-200 mb-6" />
-              <h2 className="text-2xl font-bold text-slate-800">Fitur Tanya Jawab Segera Hadir</h2>
-              <p className="text-slate-500 mt-2">Sedang dalam tahap pengembangan untuk integrasi WhatsApp.</p>
+            <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
+              <h2 className="text-xl font-bold text-emerald-600">Daftar Tanya Jawab (FAQ)</h2>
+              <input type="text" value={newFaq.q} onChange={(e) => setNewFaq({...newFaq, q: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Pertanyaan..." />
+              <textarea value={newFaq.a} onChange={(e) => setNewFaq({...newFaq, a: e.target.value})} className="w-full bg-slate-50 border p-4 h-24 rounded-xl" placeholder="Jawaban..." />
+              <button onClick={saveFaq} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan FAQ</button>
+            </div>
+            
+            <div className="space-y-4">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-white p-6 rounded-2xl border shadow-sm flex justify-between items-start gap-4">
+                  <div className="space-y-2">
+                    <div className="font-bold text-slate-800">Q: {faq.q}</div>
+                    <div className="text-slate-600 text-sm">A: {faq.a}</div>
+                  </div>
+                  <button onClick={() => deleteFaq(i)} className="p-2 bg-rose-50 text-rose-500 rounded-lg"><Trash2 size={16}/></button>
+                </div>
+              ))}
+              {faqs.length === 0 && <div className="text-center text-slate-500 py-10">Belum ada data tanya jawab.</div>}
             </div>
           </div>
         )}
