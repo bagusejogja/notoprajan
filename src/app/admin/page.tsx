@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   // --- 1. HERO SLIDES LOGIC ---
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [newSlide, setNewSlide] = useState({ title: "", subtitle: "", image_url: "", order_index: 0 });
+  const [editingSlide, setEditingSlide] = useState<any>(null);
   
   const fetchHeroSlides = async () => {
     const { data } = await supabase.from('hero_slides').select('*').order('order_index', { ascending: true });
@@ -36,8 +37,28 @@ export default function AdminDashboard() {
   const onHeroUpload = async (e: any) => {
     setIsUploading(true);
     const url = await handleFileUpload(e.target.files[0], "hero");
-    if (url) setNewSlide({ ...newSlide, image_url: url });
+    if (url) {
+      if (editingSlide) {
+        setEditingSlide({ ...editingSlide, image_url: url });
+      } else {
+        setNewSlide({ ...newSlide, image_url: url });
+      }
+    }
     setIsUploading(false);
+  };
+
+  const handleSaveSlide = async () => {
+    const slideData = editingSlide || newSlide;
+    if (!slideData.title || !slideData.image_url) return alert("Pilih Foto & Isi Judul!");
+    
+    if (editingSlide) {
+      await supabase.from('hero_slides').update(editingSlide).eq('id', editingSlide.id);
+      setEditingSlide(null);
+    } else {
+      await supabase.from('hero_slides').insert([newSlide]);
+      setNewSlide({ title: "", subtitle: "", image_url: "", order_index: heroSlides.length + 1 });
+    }
+    fetchHeroSlides();
   };
 
   // --- 2. GALLERY LOGIC ---
@@ -138,23 +159,62 @@ export default function AdminDashboard() {
         {activeTab === "hero" && (
           <div className="space-y-8 text-left">
             <div className="bg-white p-8 rounded-3xl border space-y-6 shadow-sm">
-              <h2 className="text-xl font-bold text-emerald-600">Tambah Slide Header (Cloudflare)</h2>
+              <h2 className="text-xl font-bold text-emerald-600">{editingSlide ? "Edit Slide Header" : "Tambah Slide Header"}</h2>
               <div className="grid grid-cols-2 gap-4">
-                <input type="text" value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="bg-slate-50 border p-3 rounded-xl" placeholder="Judul" />
-                <input type="text" value={newSlide.subtitle} onChange={(e) => setNewSlide({...newSlide, subtitle: e.target.value})} className="bg-slate-50 border p-3 rounded-xl" placeholder="Deskripsi" />
+                <input 
+                  type="text" 
+                  value={editingSlide ? editingSlide.title : newSlide.title} 
+                  onChange={(e) => editingSlide ? setEditingSlide({...editingSlide, title: e.target.value}) : setNewSlide({...newSlide, title: e.target.value})} 
+                  className="bg-slate-50 border p-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" 
+                  placeholder="Judul" 
+                />
+                <input 
+                  type="text" 
+                  value={editingSlide ? editingSlide.subtitle : newSlide.subtitle} 
+                  onChange={(e) => editingSlide ? setEditingSlide({...editingSlide, subtitle: e.target.value}) : setNewSlide({...newSlide, subtitle: e.target.value})} 
+                  className="bg-slate-50 border p-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" 
+                  placeholder="Deskripsi" 
+                />
               </div>
               <div className="border-2 border-dashed border-slate-200 p-8 rounded-2xl text-center">
                 <input type="file" onChange={onHeroUpload} className="hidden" id="hero-up" />
                 <label htmlFor="hero-up" className="cursor-pointer space-y-2">
                   <Upload className="mx-auto text-emerald-500" />
-                  <p className="text-sm text-slate-500">{isUploading ? "Uploading to Cloudflare..." : "Klik untuk Upload Foto Header"}</p>
+                  <p className="text-sm text-slate-500">{isUploading ? "Uploading to Cloudflare..." : "Ganti Foto Header"}</p>
                 </label>
-                {newSlide.image_url && <img src={newSlide.image_url} className="mt-4 h-24 mx-auto rounded-xl" />}
+                {(editingSlide?.image_url || newSlide.image_url) && <img src={editingSlide ? editingSlide.image_url : newSlide.image_url} className="mt-4 h-24 mx-auto rounded-xl shadow-md" />}
               </div>
-              <button onClick={async () => { await supabase.from('hero_slides').insert([newSlide]); setNewSlide({title:"", subtitle:"", image_url:"", order_index:0}); fetchHeroSlides(); }} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Slide</button>
+              <div className="flex gap-4">
+                <button onClick={handleSaveSlide} className="flex-1 bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20">
+                  {editingSlide ? "Update Slide" : "Simpan Slide"}
+                </button>
+                {editingSlide && <button onClick={() => setEditingSlide(null)} className="px-8 bg-slate-100 text-slate-500 rounded-xl font-bold">Batal</button>}
+              </div>
             </div>
-            <div className="bg-white border rounded-3xl p-4">
-              {heroSlides.map(s => (<div key={s.id} className="p-3 border-b flex justify-between items-center"><img src={s.image_url} className="h-12 w-20 object-cover rounded" /><span>{s.title}</span><button onClick={async () => { await supabase.from('hero_slides').delete().eq('id', s.id); fetchHeroSlides(); }} className="text-rose-500"><Trash2/></button></div>))}
+            <div className="bg-white border rounded-3xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="p-4 text-left font-bold">Foto</th>
+                    <th className="p-4 text-left font-bold">Judul & Subjudul</th>
+                    <th className="p-4 text-center font-bold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {heroSlides.map(s => (
+                    <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4"><img src={s.image_url} className="h-12 w-20 object-cover rounded-lg shadow-sm" /></td>
+                      <td className="p-4"><div className="font-bold text-slate-800">{s.title}</div><div className="text-xs text-slate-500">{s.subtitle}</div></td>
+                      <td className="p-4 text-center">
+                        <div className="flex justify-center gap-2">
+                          <button onClick={() => setEditingSlide(s)} className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all"><Edit2 size={16}/></button>
+                          <button onClick={() => handleDeleteSlide(s.id)} className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all"><Trash2 size={16}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
