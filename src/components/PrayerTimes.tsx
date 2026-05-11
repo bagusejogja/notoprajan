@@ -18,7 +18,7 @@ export default function PrayerTimes() {
       const formattedGregorian = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 
       try {
-        const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1602/${dateStr}`);
+        const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1505/${dateStr}`);
         const data = await res.json();
         if (data.status) {
           const j = data.data.jadwal;
