@@ -43,28 +43,35 @@ export default function DailyHadith() {
 
   return (
     <section className="relative min-h-[700px] flex items-center justify-center bg-[#0a0a0a] overflow-hidden py-24">
-      {/* 1. THE GIRIH PATTERN BACKGROUND (True 3D Effect) */}
-      <div className="absolute inset-0 opacity-70 pointer-events-none overflow-hidden">
-        <svg width="100%" height="100%" className="w-full h-full" style={{ filter: 'drop-shadow(8px 12px 10px rgba(0,0,0,0.9))' }}>
+      {/* 1. THE GIRIH PATTERN BACKGROUND (Soft Gradient 3D Effect) */}
+      <div className="absolute inset-0 opacity-60 pointer-events-none overflow-hidden">
+        <svg width="100%" height="100%" className="w-full h-full" style={{ filter: 'drop-shadow(4px 6px 12px rgba(0,0,0,0.6))' }}>
           <defs>
-            <pattern id="girih3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
-              <g fill="none" strokeLinejoin="bevel">
-                {/* Layer 1: Deep Shadow (Thickest) */}
-                <g stroke="#050505" strokeWidth="16">
+            {/* Elegant Gold Gradient */}
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fef08a" />    {/* Bright Gold */}
+              <stop offset="50%" stopColor="#d97706" />   {/* Mid Gold */}
+              <stop offset="100%" stopColor="#78350f" />  {/* Dark Bronze */}
+            </linearGradient>
+
+            <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
+              <g fill="none" strokeLinejoin="round" strokeLinecap="round">
+                {/* Layer 1: Soft Dark Base (Shadow thickness) */}
+                <g stroke="#0a0a0a" strokeWidth="8" strokeOpacity="0.8">
                   <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
                   <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
                   <rect x="40" y="40" width="80" height="80" />
                 </g>
                 
-                {/* Layer 2: Base Gold */}
-                <g stroke="#b48608" strokeWidth="10">
+                {/* Layer 2: Main Gradient Gold Body */}
+                <g stroke="url(#goldGrad)" strokeWidth="4">
                   <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
                   <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
                   <rect x="40" y="40" width="80" height="80" />
                 </g>
 
-                {/* Layer 3: Gold Highlight (Thinnest) */}
-                <g stroke="#fde047" strokeWidth="3" strokeOpacity="0.8">
+                {/* Layer 3: Delicate Highlight */}
+                <g stroke="#fef08a" strokeWidth="1" strokeOpacity="0.6">
                   <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
                   <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
                   <rect x="40" y="40" width="80" height="80" />
@@ -72,13 +79,13 @@ export default function DailyHadith() {
               </g>
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#girih3d)" />
+          <rect width="100%" height="100%" fill="url(#girihSoft3d)" />
         </svg>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/30 to-[#050505]" />
       </div>
 
       {/* 2. ATMOSPHERIC LIGHTING */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.15),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.12),transparent_70%)]" />
       
       {/* 3. MAJESTIC GOLDEN MIHRAB ARCH */}
       <div className="absolute inset-0 flex justify-center opacity-30 pointer-events-none">
