@@ -57,7 +57,7 @@ export default function DailyHadith() {
               <stop offset="100%" stopColor="#78350f" />  {/* Dark Bronze */}
             </linearGradient>
 
-            <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse" patternTransform="scale(0.35)">
+            <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse" patternTransform="scale(0.15)">
               <g fill="none" strokeLinejoin="round" strokeLinecap="round">
                 {/* Layer 1: Soft Dark Base (Shadow thickness) */}
                 <g stroke="#022c22" strokeWidth="8" strokeOpacity="0.8">

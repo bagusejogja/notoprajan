@@ -156,10 +156,10 @@ export default function Fundraising() {
       {/* DONOR MODAL */}
       {showLogsId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#022c22] border border-white/10 p-8 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col relative shadow-2xl">
+          <div className="bg-slate-900 border-2 border-emerald-500/30 p-8 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col relative shadow-[0_0_50px_rgba(16,185,129,0.15)]">
             <button 
               onClick={() => setShowLogsId(null)}
-              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-slate-400 hover:bg-rose-500 hover:text-white transition-colors"
             >
               <X size={20} />
             </button>
@@ -168,7 +168,7 @@ export default function Fundraising() {
             </h3>
             <div className="overflow-auto pr-2 flex-1">
               <table className="w-full text-left">
-                 <thead className="text-[10px] uppercase font-black text-emerald-500/40 border-b border-white/5 sticky top-0 bg-[#022c22]">
+                 <thead className="text-[10px] uppercase font-black text-emerald-500/60 border-b border-white/10 sticky top-0 bg-slate-900 z-10">
                     <tr><th className="pb-4">Nama Donatur</th><th className="pb-4 text-center">Via</th><th className="pb-4 text-right">Nominal</th></tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
