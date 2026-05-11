@@ -21,7 +21,7 @@ export default function Donation() {
             info[k] = v;
           }
         });
-        setSettings(prev => ({ ...prev, ...info }));
+        setSettings((prev: any) => ({ ...prev, ...info }));
       }
     }
     fetchInfo();

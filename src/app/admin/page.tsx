@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   Quote, Newspaper, ShoppingBag, Wallet, Settings,
   Plus, Save, Trash2, Calendar, Clock, Upload, LogOut,
-  Image as ImageIcon, Video, Users, BookOpen, Edit2, Target, MessageCircle, List, UserPlus, ArrowLeft
+  Image as ImageIcon, Video, Users, BookOpen, Edit2, Target, MessageCircle, List, UserPlus, ArrowLeft, Loader
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
