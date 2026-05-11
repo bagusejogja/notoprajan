@@ -14,6 +14,29 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // --- 0. HERO SLIDES LOGIC ---
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [newSlide, setNewSlide] = useState({ title: "", subtitle: "", image_url: "", order_index: 0 });
+  
+  const fetchHeroSlides = async () => {
+    const { data } = await supabase.from('hero_slides').select('*').order('order_index', { ascending: true });
+    if (data) setHeroSlides(data);
+  };
+
+  const handleAddSlide = async () => {
+    if (!newSlide.title || !newSlide.image_url) return alert("Isi Judul & URL Foto!");
+    await supabase.from('hero_slides').insert([newSlide]);
+    setNewSlide({ title: "", subtitle: "", image_url: "", order_index: heroSlides.length + 1 });
+    fetchHeroSlides();
+  };
+
+  const handleDeleteSlide = async (id: number) => {
+    if (confirm("Hapus slide ini?")) {
+      await supabase.from('hero_slides').delete().eq('id', id);
+      fetchHeroSlides();
+    }
+  };
+
   // --- 1. HADITH LOGIC ---
   const [hadithList, setHadithList] = useState<any[]>([]);
   const [newHadith, setNewHadith] = useState({ content: "", narrator: "", date: new Date().toISOString().split('T')[0] });
@@ -51,7 +74,7 @@ export default function AdminDashboard() {
 
   // --- 2. KAJIAN & JUMATAN LOGIC ---
   const [studyList, setStudyList] = useState<any[]>([]);
-  const [newStudy, setNewStudy] = useState({ title: "", speaker: "", date: "", time: "", location: "Masjid Notoparaja" });
+  const [newStudy, setNewStudy] = useState({ title: "", speaker: "", date: "", time: "", location: "Masjid Notoprajan" });
   const [bulkStudy, setBulkStudy] = useState("");
   
   const [fridayList, setFridayList] = useState<any[]>([]);
@@ -69,7 +92,7 @@ export default function AdminDashboard() {
     const lines = bulkStudy.split('\n').filter(l => l.includes('|'));
     const inserts = lines.map(l => {
       const p = l.split('|');
-      return { date: p[0]?.trim(), title: p[1]?.trim(), speaker: p[2]?.trim(), time: p[3]?.trim() || "18:30", location: "Masjid Notoparaja" };
+      return { date: p[0]?.trim(), title: p[1]?.trim(), speaker: p[2]?.trim(), time: p[3]?.trim() || "18:30", location: "Masjid Notoprajan" };
     });
     await supabase.from('study_schedules').insert(inserts);
     setBulkStudy(""); fetchSchedules(); alert("Bulk Kajian Berhasil!");
@@ -129,7 +152,7 @@ export default function AdminDashboard() {
   // Unified Fetch
   useEffect(() => {
     if (isLoggedIn) {
-      fetchHadiths(); fetchSchedules(); fetchFinance(); fetchNews();
+      fetchHadiths(); fetchSchedules(); fetchFinance(); fetchNews(); fetchHeroSlides();
       supabase.from('mosque_settings').select('*').single().then(({data}) => data && setSettings(data));
     }
   }, [isLoggedIn]);
@@ -141,7 +164,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 w-full max-w-md shadow-2xl text-center space-y-8 text-slate-900">
            <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto">M</div>
-           <h1 className="text-2xl font-bold font-outfit">Admin Notoparaja</h1>
+           <h1 className="text-2xl font-bold font-outfit">Admin Notoprajan</h1>
            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none" placeholder="Password" />
            <button onClick={() => password === "1" ? setIsLoggedIn(true) : alert("Salah!")} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Login</button>
         </div>
@@ -151,6 +174,7 @@ export default function AdminDashboard() {
 
   const sidebarItems = [
     { id: "hadith", label: "Hadits Harian", icon: Quote },
+    { id: "hero", label: "Slider Header", icon: ImageIcon },
     { id: "kajian", label: "Jadwal Kajian", icon: BookOpen },
     { id: "jumat", label: "Jadwal Jumat", icon: Users },
     { id: "finance", label: "Keuangan", icon: Wallet },
@@ -161,7 +185,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-inter">
       <aside className="w-64 border-r border-slate-200 bg-white p-6 flex flex-col gap-8">
-        <div className="font-outfit font-bold text-xl text-emerald-600 px-2">Masjid Admin</div>
+        <div className="font-outfit font-bold text-xl text-emerald-600 px-2">Notoprajan Admin</div>
         <nav className="flex flex-col gap-2">
           {sidebarItems.map(item => (
             <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "text-slate-500 hover:bg-slate-100"}`}>
@@ -175,12 +199,49 @@ export default function AdminDashboard() {
 
       <main className="flex-1 p-10 overflow-y-auto">
         <header className="flex justify-between items-end mb-12 text-left">
-          <div><h1 className="text-3xl font-bold font-outfit capitalize">{activeTab}</h1><p className="text-slate-500 text-sm">Masjid Notoparaja Yogyakarta.</p></div>
+          <div><h1 className="text-3xl font-bold font-outfit capitalize">{activeTab}</h1><p className="text-slate-500 text-sm">Masjid Notoprajan Yogyakarta.</p></div>
           <div className="bg-emerald-50 border border-emerald-100 px-6 py-3 rounded-2xl">
             <span className="text-xs font-bold text-emerald-600 block">Saldo Kas</span>
             <span className="text-xl font-bold text-emerald-700">Rp {balance.toLocaleString('id-ID')}</span>
           </div>
         </header>
+
+        {/* HERO SLIDER TAB */}
+        {activeTab === "hero" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4">
+              <h2 className="text-xl font-bold text-emerald-600">Tambah Slide Header</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul Besar" />
+                <input type="text" value={newSlide.subtitle} onChange={(e) => setNewSlide({...newSlide, subtitle: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Subjudul / Deskripsi" />
+              </div>
+              <input type="text" value={newSlide.image_url} onChange={(e) => setNewSlide({...newSlide, image_url: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="URL Foto (https://...)" />
+              <button onClick={handleAddSlide} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20">Simpan Slide</button>
+            </div>
+            <div className="bg-white border rounded-3xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="p-4 text-left font-bold">Foto</th>
+                    <th className="p-4 text-left font-bold">Judul & Subjudul</th>
+                    <th className="p-4 text-center font-bold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {heroSlides.map(s => (
+                    <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4"><img src={s.image_url} className="w-24 h-12 object-cover rounded-lg" /></td>
+                      <td className="p-4"><div className="font-bold">{s.title}</div><div className="text-xs text-slate-500">{s.subtitle}</div></td>
+                      <td className="p-4 text-center">
+                        <button onClick={() => handleDeleteSlide(s.id)} className="text-rose-500 p-2"><Trash2 size={18}/></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* HADITH TAB */}
         {activeTab === "hadith" && (
@@ -198,7 +259,9 @@ export default function AdminDashboard() {
                 <button onClick={handleBulkHadith} className="w-full bg-indigo-500 text-white py-3 rounded-xl font-bold">Import Data</button>
               </div>
             </div>
-            <div className="bg-white border rounded-3xl p-4">{hadithList.map(h => (<div key={h.id} className="p-3 border-b last:border-0 flex justify-between"><span>{h.display_date} - {h.content}</span><button onClick={async () => { await supabase.from('hadith').delete().eq('id', h.id); fetchHadiths(); }} className="text-rose-500"><Trash2 size={16}/></button></div>))}</div>
+            <div className="bg-white border rounded-3xl p-4 max-h-96 overflow-y-auto">
+              {hadithList.map(h => (<div key={h.id} className="p-3 border-b last:border-0 flex justify-between"><span>{h.display_date} - {h.content}</span><button onClick={async () => { await supabase.from('hadith').delete().eq('id', h.id); fetchHadiths(); }} className="text-rose-500"><Trash2 size={16}/></button></div>))}
+            </div>
           </div>
         )}
 
@@ -209,7 +272,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-bold text-emerald-600">Tambah Kajian</h2>
               <input type="text" value={newStudy.title} onChange={(e) => setNewStudy({...newStudy, title: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul" />
               <input type="date" value={newStudy.date} onChange={(e) => setNewStudy({...newStudy, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" />
-              <button onClick={async () => { await supabase.from('study_schedules').insert([newStudy]); setNewStudy({title:"", speaker:"", date:"", time:"", location:"Masjid Notoparaja"}); fetchSchedules(); }} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+              <button onClick={async () => { await supabase.from('study_schedules').insert([newStudy]); setNewStudy({title:"", speaker:"", date:"", time:"", location:"Masjid Notoprajan"}); fetchSchedules(); }} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
             </div>
             <div className="bg-white p-8 rounded-3xl border space-y-4">
               <h2 className="text-xl font-bold text-indigo-600">Bulk (Date | Title | Speaker | Time)</h2>
