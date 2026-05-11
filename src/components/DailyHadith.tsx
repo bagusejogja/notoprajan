@@ -45,75 +45,87 @@ export default function DailyHadith() {
   }, []);
 
   if (loading) return (
-    <section className="h-64 bg-[#022c22] animate-pulse" />
+    <section className="h-64 bg-slate-50 animate-pulse" />
   );
 
   if (!hadith) return null;
 
   return (
-    <section className="relative py-24 px-4 bg-white overflow-hidden">
-      <div className="max-w-4xl mx-auto relative z-10">
+    <section className="relative py-28 px-4 overflow-hidden bg-slate-50">
+      {/* Side Ornaments (Left & Right) */}
+      <div className="absolute top-0 left-0 bottom-0 w-1/4 bg-[#0a0a0a] hidden lg:block overflow-hidden">
+         <div className="absolute inset-0 opacity-20" style={{
+           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z' fill='%23d97706'/%3E%3C/svg%3E")`,
+           backgroundSize: '40px 40px'
+         }} />
+         <div className="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-l from-amber-500/50 to-transparent" />
+      </div>
+      <div className="absolute top-0 right-0 bottom-0 w-1/4 bg-[#0a0a0a] hidden lg:block overflow-hidden">
+         <div className="absolute inset-0 opacity-20" style={{
+           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z' fill='%23d97706'/%3E%3C/svg%3E")`,
+           backgroundSize: '40px 40px'
+         }} />
+         <div className="absolute top-0 left-0 bottom-0 w-2 bg-gradient-to-r from-amber-500/50 to-transparent" />
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           className="relative"
         >
-          {/* Main Card: Luxury Mandala Design */}
-          <div className="relative bg-[#0a0a0a] rounded-[4rem] p-12 md:p-24 shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden border border-amber-900/20">
+          {/* Main Content Area: Clean White/Cream */}
+          <div className="bg-white rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.1)] border border-amber-100 overflow-hidden relative">
             
-            {/* Large Central Mandala Pattern */}
-            <div className="absolute inset-0 opacity-[0.15] flex items-center justify-center pointer-events-none">
-              <svg width="600" height="600" viewBox="0 0 200 200" className="animate-[spin_120s_linear_infinite]">
-                <path fill="url(#goldGradient)" d="M100 0c-55.2 0-100 44.8-100 100s44.8 100 100 100 100-44.8 100-100-44.8-100-100-100zm0 190c-49.7 0-90-40.3-90-90s40.3-90 90-90 90 40.3 90 90-40.3 90-90 90z"/>
-                <path fill="url(#goldGradient)" d="M100 20c-44.1 0-80 35.9-80 80s35.9 80 80 80 80-35.9 80-80-35.9-80-80-80zm0 140c-33.1 0-60-26.9-60-60s26.9-60 60-60 60 26.9 60 60-26.9 60-60 60z"/>
-                <path fill="url(#goldGradient)" d="M100 40c-33.1 0-60 26.9-60 60s26.9 60 60 60 60-26.9 60-60-26.9-60-60-60zm0 100c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40z"/>
-                <defs>
-                  <radialGradient id="goldGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#78350f" />
-                  </radialGradient>
-                </defs>
-                {[0,45,90,135,180,225,270,315].map(deg => (
-                  <g key={deg} transform={`rotate(${deg} 100 100)`}>
-                    <path fill="url(#goldGradient)" d="M100 10l5 15h-10zM100 180l5 15h-10z" />
-                    <circle fill="url(#goldGradient)" cx="100" cy="50" r="2" />
-                  </g>
-                ))}
-              </svg>
+            {/* Hanging Lanterns Decoration */}
+            <div className="absolute top-0 left-12 w-0.5 h-20 bg-amber-500/30">
+               <div className="absolute -bottom-4 -left-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                 <div className="w-2 h-4 bg-white/50 rounded-sm" />
+               </div>
             </div>
-            
-            {/* Decorative Side Borders (Inspired by reference) */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-4 md:w-8 h-3/4 bg-gradient-to-b from-transparent via-amber-500/20 to-transparent border-r border-amber-500/30 rounded-r-full" />
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 md:w-8 h-3/4 bg-gradient-to-b from-transparent via-amber-500/20 to-transparent border-l border-amber-500/30 rounded-l-full" />
+            <div className="absolute top-0 right-12 w-0.5 h-32 bg-amber-500/30">
+               <div className="absolute -bottom-4 -left-3 w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                 <div className="w-2 h-4 bg-white/50 rounded-sm" />
+               </div>
+            </div>
 
-            {/* Subtle Gold Glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.05),transparent_70%)]" />
-
-            <div className="relative z-10 space-y-12 text-center">
+            {/* Inner Content */}
+            <div className="px-10 py-20 md:px-24 md:py-28 text-center space-y-10">
               <div className="flex justify-center">
-                <div className="inline-flex items-center gap-3 px-8 py-2.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-black uppercase tracking-[0.4em]">
-                  <Quote size={16} className="fill-current" />
-                  Mutiara Hadits
+                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-xs font-black uppercase tracking-[0.3em]">
+                  <Quote size={14} className="fill-current" />
+                  Hadits Hari Ini
                 </div>
               </div>
 
-              <h2 className="text-3xl md:text-5xl font-medium text-amber-50 leading-[1.4] font-outfit italic drop-shadow-2xl">
+              <h2 className="text-3xl md:text-5xl font-medium text-slate-800 leading-relaxed font-outfit italic">
                 "{hadith.content}"
               </h2>
               
-              <div className="flex flex-col items-center gap-6">
-                <div className="h-px w-32 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-                <div className="space-y-2">
-                  <p className="text-amber-500 font-black tracking-[0.3em] uppercase text-sm">
+              <div className="flex flex-col items-center gap-6 pt-4">
+                <div className="flex items-center gap-4 w-32">
+                   <div className="h-px flex-1 bg-amber-300" />
+                   <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                   <div className="h-px flex-1 bg-amber-300" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-amber-600 font-black tracking-widest uppercase text-sm">
                     {hadith.narrator}
                   </p>
-                  <p className="text-amber-500/40 text-xs italic">
+                  <p className="text-slate-400 text-xs italic">
                     {hadith.source}
                   </p>
                 </div>
               </div>
             </div>
+
+            {/* Bottom Arch Decoration */}
+            <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-amber-500/10 to-transparent" />
           </div>
+
+          {/* Decorative Side Wings (Arch feel) */}
+          <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-64 bg-amber-500 rounded-full blur-3xl opacity-10" />
+          <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-64 bg-amber-500 rounded-full blur-3xl opacity-10" />
         </motion.div>
       </div>
     </section>
