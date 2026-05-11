@@ -19,8 +19,8 @@ export default function Donation() {
   }, []);
 
   return (
-    <section className="py-24 px-4 bg-indigo-premium relative overflow-hidden" id="donation">
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 to-emerald-950 opacity-90" />
+    <section className="py-24 px-4 bg-[#022c22] relative overflow-hidden" id="donation">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#022c22] to-[#043d31] opacity-90" />
       
       <div className="max-w-4xl mx-auto relative text-center space-y-12">
         <div className="space-y-4">

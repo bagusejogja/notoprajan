@@ -42,7 +42,7 @@ export default function DailyHadith() {
   if (!hadith) return null;
 
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center bg-[#0a0a0a] overflow-hidden py-24">
+    <section className="relative min-h-[400px] flex items-center justify-center bg-[#022c22] overflow-hidden py-12">
       {/* 1. THE GIRIH PATTERN BACKGROUND (Soft Gradient 3D Effect) */}
       <div className="absolute inset-0 opacity-60 pointer-events-none overflow-hidden">
         <svg width="100%" height="100%" className="w-full h-full" style={{ filter: 'drop-shadow(4px 6px 12px rgba(0,0,0,0.6))' }}>
@@ -57,7 +57,7 @@ export default function DailyHadith() {
             <pattern id="girihSoft3d" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
               <g fill="none" strokeLinejoin="round" strokeLinecap="round">
                 {/* Layer 1: Soft Dark Base (Shadow thickness) */}
-                <g stroke="#0a0a0a" strokeWidth="8" strokeOpacity="0.8">
+                <g stroke="#022c22" strokeWidth="8" strokeOpacity="0.8">
                   <path d="M80 0 L105 55 L160 80 L105 105 L80 160 L55 105 L0 80 L55 55 Z" />
                   <path d="M0 0 L40 40 M160 0 L120 40 M160 160 L120 120 M0 160 L40 120" />
                   <rect x="40" y="40" width="80" height="80" />
@@ -81,7 +81,7 @@ export default function DailyHadith() {
           </defs>
           <rect width="100%" height="100%" fill="url(#girihSoft3d)" />
         </svg>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/30 to-[#050505]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#022c22]/50 to-[#022c22]" />
       </div>
 
       {/* 2. ATMOSPHERIC LIGHTING */}
@@ -93,7 +93,7 @@ export default function DailyHadith() {
       </div>
 
       {/* 4. 3D STAGE FLOOR (With Reflection) */}
-      <div className="absolute bottom-0 inset-x-0 h-56 bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#022c22] via-[#022c22]/90 to-transparent z-10" />
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_25px_rgba(245,158,11,1)] z-20" />
 
       {/* 5. FLOATING CONTENT */}

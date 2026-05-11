@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   Quote, Newspaper, ShoppingBag, Wallet, Settings,
   Plus, Save, Trash2, Calendar, Clock, Upload, LogOut,
-  Image as ImageIcon, Video, Users, BookOpen, Edit2
+  Image as ImageIcon, Video, Users, BookOpen, Edit2, Target, MessageCircle
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -137,7 +137,9 @@ export default function AdminDashboard() {
     { id: "hadith", label: "Hadits Harian", icon: Quote },
     { id: "news", label: "Berita & Kajian", icon: Newspaper },
     { id: "finance", label: "Keuangan", icon: Wallet },
+    { id: "donation", label: "Donasi Khusus", icon: Target },
     { id: "settings", label: "Profil Masjid", icon: Settings },
+    { id: "qa", label: "Tanya Jawab", icon: MessageCircle },
   ];
 
   return (
@@ -262,7 +264,78 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-      </main>
+
+        {/* FINANCE */}
+        {activeTab === "finance" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
+              <h2 className="text-xl font-bold text-emerald-600">Input Laporan Keuangan</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <input type="text" className="bg-slate-50 border p-3 rounded-xl" placeholder="Judul Laporan (Misal: Infaq Jumat 12 Mei)" />
+                <input type="date" className="bg-slate-50 border p-3 rounded-xl" />
+                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Total Pemasukan (Rp)" />
+                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Total Pengeluaran (Rp)" />
+                <input type="text" className="col-span-2 bg-slate-50 border p-3 rounded-xl" placeholder="Kategori (Kas Masjid / Zakat / Sosial)" />
+              </div>
+              <button className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Simpan Laporan</button>
+            </div>
+            <div className="bg-white border rounded-3xl p-4 text-center text-slate-500 italic py-10">
+              Belum ada data keuangan yang diinput.
+            </div>
+          </div>
+        )}
+
+        {/* DONATION */}
+        {activeTab === "donation" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
+              <h2 className="text-xl font-bold text-emerald-600">Kelola Donasi Khusus</h2>
+              <input type="text" className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Judul Program (Misal: Renovasi Atap)" />
+              <textarea className="w-full bg-slate-50 border p-3 h-24 rounded-xl" placeholder="Deskripsi Singkat..." />
+              <div className="grid grid-cols-3 gap-4">
+                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Target Donasi (Rp)" />
+                <input type="number" className="bg-slate-50 border p-3 rounded-xl" placeholder="Terkumpul (Rp)" />
+                <input type="text" className="bg-slate-50 border p-3 rounded-xl" placeholder="Batas Waktu (Contoh: 20 Mei 2024)" />
+              </div>
+              <button className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Update Program Donasi</button>
+            </div>
+          </div>
+        )}
+
+        {/* QA */}
+        {activeTab === "qa" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border shadow-sm text-center py-20">
+              <MessageCircle size={64} className="mx-auto text-emerald-200 mb-6" />
+              <h2 className="text-2xl font-bold text-slate-800">Fitur Tanya Jawab Segera Hadir</h2>
+              <p className="text-slate-500 mt-2">Sedang dalam tahap pengembangan untuk integrasi WhatsApp.</p>
+            </div>
+          </div>
+        )}
+
+        {/* SETTINGS */}
+        {activeTab === "settings" && (
+          <div className="space-y-8 text-left">
+            <div className="bg-white p-8 rounded-3xl border space-y-4 shadow-sm">
+              <h2 className="text-xl font-bold text-emerald-600">Pengaturan Profil Masjid</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase">Nama Masjid</label>
+                  <input type="text" className="w-full mt-1 bg-slate-50 border p-3 rounded-xl" defaultValue="Masjid Notoprajan" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase">Nomor Rekening Donasi</label>
+                  <input type="text" className="w-full mt-1 bg-slate-50 border p-3 rounded-xl" defaultValue="BSI 7264867848 a.n Masjid Notoprajan" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase">Link QRIS (URL/String)</label>
+                  <input type="text" className="w-full mt-1 bg-slate-50 border p-3 rounded-xl" defaultValue="DonasiMasjidNotoprajan" />
+                </div>
+              </div>
+              <button className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold mt-4">Simpan Perubahan</button>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

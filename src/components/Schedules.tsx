@@ -60,7 +60,7 @@ export default function Schedules() {
               <p className="text-slate-500 text-sm">Petugas shalat jumat pekan ini.</p>
             </div>
 
-            <div className="bg-indigo-950 rounded-[3rem] p-8 text-white shadow-2xl relative overflow-hidden group">
+            <div className="bg-[#022c22] rounded-[3rem] p-8 text-white shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
                 <Calendar size={120} />
               </div>
@@ -119,31 +119,31 @@ export default function Schedules() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {studies.length > 0 ? studies.map((s) => (
-                <div key={s.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group text-left space-y-6">
+                <div key={s.id} className="bg-[#043d31] p-8 rounded-[2.5rem] border border-emerald-900/50 shadow-sm hover:shadow-xl transition-all group text-left space-y-6">
                   <div className="flex justify-between items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-900/50 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                       <Clock size={24} />
                     </div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-emerald-200/50 uppercase tracking-widest">
                       {s.time} WIB
                     </span>
                   </div>
                   
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-indigo-950 leading-tight">{s.title}</h3>
-                    <p className="text-slate-500 flex items-center gap-2 text-sm font-medium">
-                      <User size={14} className="text-emerald-500" />
+                    <h3 className="text-xl font-bold text-white leading-tight">{s.title}</h3>
+                    <p className="text-emerald-100/70 flex items-center gap-2 text-sm font-medium">
+                      <User size={14} className="text-emerald-400" />
                       {s.speaker}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-50 flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-widest">
+                  <div className="pt-4 border-t border-emerald-900/50 flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-widest">
                     <Calendar size={14} />
                     {getFullJavaneseDate(s.date)}
                   </div>
                 </div>
               )) : (
-                <div className="col-span-2 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 italic">
+                <div className="col-span-2 py-12 text-center bg-[#043d31] rounded-3xl border border-dashed border-emerald-900/50 text-emerald-100/50 italic">
                   Belum ada jadwal kajian terbaru.
                 </div>
               )}
