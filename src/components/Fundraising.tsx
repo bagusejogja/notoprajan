@@ -5,6 +5,12 @@ import { Target, TrendingUp, HandCoins } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Fundraising() {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   // Demo data for now, could be fetched from Supabase
   const campaign = {
     title: "Renovasi Atap & Plafon",
@@ -14,7 +20,13 @@ export default function Fundraising() {
     deadline: "20 Mei 2024"
   };
 
+  const formatIDR = (val: number) => {
+    return new Intl.NumberFormat('id-ID').format(val);
+  };
+
   const percent = Math.min(100, Math.floor((campaign.collected / campaign.target) * 100));
+
+  if (!hasMounted) return <div className="h-96" />; // Prevent mismatch
 
   return (
     <section className="py-24 px-4 bg-slate-50" id="fundraising">
@@ -36,11 +48,11 @@ export default function Fundraising() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Terkumpul</span>
-                <span className="text-2xl font-bold text-emerald-600">Rp {campaign.collected.toLocaleString()}</span>
+                <span className="text-2xl font-bold text-emerald-600">Rp {formatIDR(campaign.collected)}</span>
               </div>
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Target</span>
-                <span className="text-2xl font-bold text-indigo-950">Rp {campaign.target.toLocaleString()}</span>
+                <span className="text-2xl font-bold text-indigo-950">Rp {formatIDR(campaign.target)}</span>
               </div>
             </div>
           </div>

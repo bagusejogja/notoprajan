@@ -5,16 +5,16 @@ import { useState } from "react";
 
 const FAQS = [
   {
-    q: "Bagaimana cara menjadi donatur tetap?",
-    a: "Anda bisa menghubungi bendahara masjid atau langsung melakukan transfer ke rekening resmi kami dan mengirimkan konfirmasi via WhatsApp."
+    q: "Bagaimana cara mendaftarkan anak ke TPA Masjid?",
+    a: "Pendaftaran santri baru TPA dibuka setiap hari Senin - Kamis pukul 16.00 di sekretariat masjid. Persyaratan cukup membawa fotokopi KK."
   },
   {
-    q: "Apakah masjid menerima penyaluran Zakat Mal?",
-    a: "Ya, kami memiliki unit UPZ (Unit Pengumpul Zakat) resmi yang siap menyalurkan zakat Anda kepada yang berhak."
+    q: "Apakah Masjid menerima penyaluran Zakat Mal?",
+    a: "Ya, kami memiliki Unit Pengumpul Zakat (UPZ) yang menyalurkan zakat Anda secara amanah kepada 8 asnaf di wilayah Notoprajan."
   },
   {
-    q: "Bagaimana cara mendaftarkan anak ke TPA?",
-    a: "Pendaftaran TPA dibuka setiap awal semester. Anda bisa datang langsung ke sekretariat masjid setiap sore hari pukul 16:00."
+    q: "Kapan jadwal kajian kitab rutin dilaksanakan?",
+    a: "Kajian rutin dilaksanakan setiap malam Jumat (Tafsir Al-Quran) dan Ahad pagi (Fiqih Ibadah) setelah shalat Subuh."
   }
 ];
 
@@ -22,16 +22,16 @@ export default function Support() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section className="py-24 px-4 bg-white" id="support">
+    <section className="py-24 px-4 bg-white" id="faq">
       <div className="max-w-4xl mx-auto">
         <div className="text-center space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold">
             <HelpCircle size={14} />
-            <span>Pusat Informasi</span>
+            <span>Konsultasi & Informasi</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Tanya Jawab & Masukan</h2>
+          <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Tanya Jawab Agama</h2>
           <p className="text-slate-500 max-w-xl mx-auto">
-            Punya pertanyaan atau saran untuk kemajuan masjid? Kami siap mendengarkan aspirasi jamaah.
+            Temukan jawaban atas pertanyaan seputar ibadah dan kegiatan masjid Notoparaja Yogyakarta.
           </p>
         </div>
 

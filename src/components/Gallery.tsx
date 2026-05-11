@@ -18,7 +18,6 @@ export default function Gallery() {
     fetchGallery();
   }, []);
 
-  if (images.length === 0) return null;
 
   return (
     <section className="py-24 px-4 bg-white">
@@ -31,7 +30,7 @@ export default function Gallery() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {images.map((img) => (
+          {images.length > 0 ? images.map((img) => (
             <div key={img.id} className="group relative aspect-square rounded-[2rem] overflow-hidden shadow-lg bg-slate-100">
               <img 
                 src={img.image_url} 
@@ -42,7 +41,11 @@ export default function Gallery() {
                 <span className="text-white font-bold text-sm">{img.title}</span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full py-20 text-slate-400 italic bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+               Belum ada foto galeri. Silakan tambahkan melalui dashboard admin.
+            </div>
+          )}
         </div>
       </div>
     </section>
