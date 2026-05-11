@@ -44,6 +44,17 @@ export default function DailyHadith() {
     fetchHadith();
   }, []);
 
+  if (loading) return (
+    <section className="h-[500px] bg-[#022c22] flex items-center justify-center relative overflow-hidden">
+       <div className="absolute inset-0 opacity-10" style={{
+         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23ffffff'/%3E%3C/svg%3E")`,
+       }} />
+       <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin relative z-10" />
+    </section>
+  );
+
+  if (!hadith) return null;
+
   return (
     <section className="relative py-24 bg-slate-100 overflow-hidden min-h-[500px] flex items-center">
       {/* BACKGROUND DECORATION (The Side Wings) */}
