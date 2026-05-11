@@ -45,85 +45,111 @@ export default function DailyHadith() {
   }, []);
 
   if (loading) return (
-    <section className="h-[500px] bg-[#022c22] flex items-center justify-center relative overflow-hidden">
-       <div className="absolute inset-0 opacity-10" style={{
-         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23ffffff'/%3E%3C/svg%3E")`,
-       }} />
-       <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin relative z-10" />
+    <section className="h-[500px] bg-[#022c22] flex items-center justify-center">
+       <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
     </section>
   );
 
   if (!hadith) return null;
 
   return (
-    <section className="relative py-24 bg-slate-100 overflow-hidden min-h-[500px] flex items-center">
-      {/* BACKGROUND DECORATION (The Side Wings) */}
-      <div className="absolute inset-0 flex">
-        {/* Left Wing */}
-        <div className="w-1/4 bg-[#0a0a0a] relative border-r-4 border-amber-500/50">
-          <div className="absolute inset-0 opacity-40" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23d97706'/%3E%3C/svg%3E")`,
-            backgroundSize: '80px 80px'
-          }} />
-          <div className="absolute top-0 right-0 bottom-0 w-24 bg-gradient-to-l from-amber-500/20 to-transparent" />
-        </div>
-        
-        {/* Center Space (Empty for the card) */}
-        <div className="flex-1 bg-[#f8f5f0]" />
-        
-        {/* Right Wing */}
-        <div className="w-1/4 bg-[#0a0a0a] relative border-l-4 border-amber-500/50">
-          <div className="absolute inset-0 opacity-40" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%23d97706'/%3E%3C/svg%3E")`,
-            backgroundSize: '80px 80px'
-          }} />
-          <div className="absolute top-0 left-0 bottom-0 w-24 bg-gradient-to-r from-amber-500/20 to-transparent" />
-        </div>
-      </div>
+    <section className="relative py-32 px-4 bg-[#fcfaf7] overflow-hidden">
+      {/* Intricate Islamic Pattern Background (Full Section) */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%2378350f'/%3E%3C/svg%3E")`,
+        backgroundSize: '100px 100px'
+      }} />
 
-      <div className="max-w-5xl mx-auto w-full relative z-20 px-4">
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="relative"
+          transition={{ duration: 1 }}
+          className="relative group"
         >
-          {/* Main Content Card (The Podium) */}
-          <div className="bg-white rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.15)] border-x-8 border-amber-500/10 overflow-hidden relative min-h-[350px] flex items-center justify-center">
+          {/* THE MIHRAB CONTAINER */}
+          <div className="relative mx-auto max-w-3xl">
+            {/* The Outer Arch Frame */}
+            <div className="absolute -inset-4 bg-gradient-to-b from-amber-600 to-amber-900 rounded-t-[10rem] opacity-10 blur-2xl" />
             
-            {/* Hanging Lanterns (More realistic) */}
-            <div className="absolute top-0 left-8 md:left-20 flex flex-col items-center">
-              <div className="w-0.5 h-24 bg-amber-600/40" />
-              <div className="w-8 h-10 bg-amber-500 rounded-t-full rounded-b-lg border-2 border-amber-300 shadow-lg shadow-amber-500/40" />
-            </div>
-            <div className="absolute top-0 right-8 md:right-20 flex flex-col items-center">
-              <div className="w-0.5 h-32 bg-amber-600/40" />
-              <div className="w-8 h-10 bg-amber-600 rounded-t-full rounded-b-lg border-2 border-amber-400 shadow-lg shadow-amber-600/40" />
-            </div>
-
-            {/* Hadith Content */}
-            <div className="px-8 py-16 md:px-24 text-center space-y-10">
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black uppercase tracking-[0.4em]">
-                  <Quote size={14} className="fill-current" />
-                  Mutiara Hadits
-                </div>
-              </div>
-
-              <h2 className="text-2xl md:text-4xl font-medium text-slate-800 leading-relaxed font-outfit italic">
-                "{hadith.content}"
-              </h2>
+            {/* The Main Iconic Mihrab Shape Card */}
+            <div className="relative bg-white rounded-t-[12rem] rounded-b-[2rem] shadow-[0_40px_100px_rgba(120,53,15,0.15)] border-[12px] border-[#0a0a0a] overflow-hidden min-h-[500px] flex flex-col items-center justify-center">
               
-              <div className="flex flex-col items-center gap-6">
-                <div className="h-0.5 w-16 bg-amber-500/30" />
-                <div className="space-y-1">
-                  <p className="text-amber-600 font-black tracking-widest uppercase text-xs md:text-sm">
-                    {hadith.narrator}
-                  </p>
-                  <p className="text-slate-400 text-[10px] md:text-xs italic">
-                    {hadith.source}
-                  </p>
+              {/* Internal Gold Arch Border */}
+              <div className="absolute inset-2 border-2 border-amber-500/30 rounded-t-[11rem] rounded-b-[1.5rem] pointer-events-none" />
+
+              {/* Decorative Lanterns (Realistic SVG) */}
+              <div className="absolute top-0 left-16 flex flex-col items-center">
+                <div className="w-px h-24 bg-amber-600/40" />
+                <div className="w-10 h-14 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
+                   <div className="w-4 h-6 bg-amber-400 rounded-full blur-[4px] animate-pulse" />
+                   <div className="absolute -top-1 w-2 h-2 bg-amber-500 rounded-full" />
                 </div>
               </div>
+              <div className="absolute top-0 right-16 flex flex-col items-center">
+                <div className="w-px h-36 bg-amber-600/40" />
+                <div className="w-10 h-14 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
+                   <div className="w-4 h-6 bg-amber-400 rounded-full blur-[4px] animate-pulse" />
+                   <div className="absolute -top-1 w-2 h-2 bg-amber-500 rounded-full" />
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <div className="px-10 py-20 md:px-24 text-center space-y-12 relative z-20">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-amber-900/20">
+                    <Quote size={20} className="fill-current" />
+                  </div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-700">Mutiara Hadits</div>
+                </div>
+
+                <h2 className="text-2xl md:text-4xl font-medium text-slate-800 leading-[1.6] font-outfit italic">
+                  "{hadith.content}"
+                </h2>
+                
+                <div className="flex flex-col items-center gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rotate-45 bg-amber-500" />
+                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                    <div className="w-2 h-2 rotate-45 bg-amber-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-amber-700 font-black tracking-[0.3em] uppercase text-xs md:text-sm">
+                      {hadith.narrator}
+                    </p>
+                    <p className="text-slate-400 text-[10px] md:text-xs font-medium tracking-wide">
+                      {hadith.source}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Decorative Base */}
+              <div className="absolute bottom-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+            </div>
+
+            {/* Floating Dust/Light Particles for extra WOW */}
+            <div className="absolute inset-0 pointer-events-none opacity-40 overflow-hidden rounded-t-[12rem]">
+               {[1,2,3,4,5].map(i => (
+                 <motion.div 
+                   key={i}
+                   animate={{ 
+                     y: [0, -100, 0],
+                     opacity: [0, 1, 0],
+                     x: Math.random() * 20 - 10
+                   }}
+                   transition={{ 
+                     duration: 5 + Math.random() * 5, 
+                     repeat: Infinity,
+                     delay: Math.random() * 5 
+                   }}
+                   className="absolute w-1 h-1 bg-amber-400 rounded-full"
+                   style={{ 
+                     left: `${Math.random() * 100}%`,
+                     bottom: '10%'
+                   }}
+                 />
+               ))}
             </div>
           </div>
         </motion.div>
