@@ -10,28 +10,21 @@ const supabase = createClient(
 );
 
 async function seed() {
-  console.log("🌟 Sinkronisasi Nama Notoprajan & Perbaikan Galeri...");
+  console.log("📸 Mengisi 8 Foto Galeri (4x2)...");
   
-  const today = new Date().toISOString().split('T')[0];
-
-  // 1. Fix Gallery Images & Titles
   await supabase.from('gallery').delete().neq('id', 0);
   await supabase.from('gallery').insert([
-    { 
-      title: "Kegiatan Kajian Rutin Notoprajan", 
-      image_url: "https://images.unsplash.com/photo-1542623024-a797a7cbd0ed?auto=format&fit=crop&q=80&w=1200" 
-    },
-    { 
-      title: "Shalat Berjamaah di Notoprajan", 
-      image_url: "https://images.unsplash.com/photo-1590073844006-33379778ae09?auto=format&fit=crop&q=80&w=1200" 
-    },
-    { 
-      title: "Lingkungan Asri Notoprajan", 
-      image_url: "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=80&w=1200" 
-    }
+    { title: "Kajian Rutin Notoprajan", image_url: "https://images.unsplash.com/photo-1542623024-a797a7cbd0ed?w=800" },
+    { title: "Shalat Berjamaah", image_url: "https://images.unsplash.com/photo-1590073844006-33379778ae09?w=800" },
+    { title: "Kegiatan TPA", image_url: "https://images.unsplash.com/photo-1526674179247-f39ed5ffa0d8?w=800" },
+    { title: "Buka Puasa Bersama", image_url: "https://images.unsplash.com/photo-1590005024862-6b67679a29fb?w=800" },
+    { title: "Persiapan Shalat Ied", image_url: "https://images.unsplash.com/photo-1584281729155-3c9933058122?w=800" },
+    { title: "Santunan Anak Yatim", image_url: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800" },
+    { title: "Pemeriksaan Kesehatan", image_url: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800" },
+    { title: "Kerja Bakti Masjid", image_url: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800" }
   ]);
 
-  console.log("✅ DATA NOTOPRAJAN & GALERI SIAP!");
+  console.log("✅ 8 Foto Galeri Sukses Masuk!");
 }
 
 seed();

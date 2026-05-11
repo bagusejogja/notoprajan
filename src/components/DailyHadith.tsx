@@ -53,9 +53,17 @@ export default function DailyHadith() {
   }, []);
 
   if (loading) return (
-    <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-20">
-      <div className="glass-dark p-8 rounded-[2.5rem] border-white/20 animate-pulse h-48" />
-    </div>
+    <section className="relative py-24 px-4 overflow-hidden bg-slate-50">
+      {/* Islamic Pattern Background */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l10 30 30 10-30 10-10 30-10-30-30-10 30-10z' fill='%23000' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+        backgroundSize: '40px 40px'
+      }} />
+      
+      <div className="max-w-4xl mx-auto relative">
+        <div className="glass-dark p-8 rounded-[2.5rem] border-white/20 animate-pulse h-48" />
+      </div>
+    </section>
   );
 
   if (!hadith) return null;

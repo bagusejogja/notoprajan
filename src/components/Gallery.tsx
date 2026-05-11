@@ -11,11 +11,11 @@ export default function Gallery() {
 
   useEffect(() => {
     async function fetchGallery() {
-      const { data } = await supabase
+        const { data } = await supabase
         .from('gallery')
         .select('*')
         .order('id', { ascending: false })
-        .limit(6);
+        .limit(8);
       if (data) setImages(data);
     }
     fetchGallery();
@@ -34,7 +34,7 @@ export default function Gallery() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {images.length > 0 ? images.map((img) => (
             <motion.div 
               layoutId={`img-${img.id}`}
