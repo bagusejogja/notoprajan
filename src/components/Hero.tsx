@@ -5,9 +5,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const IMAGES = [
-  "https://images.unsplash.com/photo-1542623024-a797a7cbd0ed?auto=format&fit=crop&q=80&w=2000",
-  "https://images.unsplash.com/photo-1590073844006-33379778ae09?auto=format&fit=crop&q=80&w=2000",
-  "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=80&w=2000"
+  "https://images.unsplash.com/photo-1597404294360-fedede44308a?auto=format&fit=crop&q=80&w=2000",
+  "https://images.unsplash.com/photo-1519817650390-64a934479f61?auto=format&fit=crop&q=80&w=2000",
+  "https://images.unsplash.com/photo-1526674179247-f39ed5ffa0d8?auto=format&fit=crop&q=80&w=2000"
 ];
 
 export default function Hero() {
