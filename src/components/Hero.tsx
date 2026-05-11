@@ -51,10 +51,6 @@ export default function Hero() {
           
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
             <div className="max-w-4xl space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-400 text-sm font-bold tracking-widest uppercase mb-4 mx-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Informasi Masjid Notoprajan
-              </div>
               <h1 className="text-4xl md:text-8xl font-black text-white font-outfit leading-tight drop-shadow-2xl">
                 {slide.title}
               </h1>

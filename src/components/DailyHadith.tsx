@@ -53,9 +53,9 @@ export default function DailyHadith() {
   if (!hadith) return null;
 
   return (
-    <section className="relative py-32 px-4 bg-[#fcfaf7] overflow-hidden">
+    <section className="relative py-20 px-4 bg-[#fcfaf7] overflow-hidden">
       {/* Intricate Islamic Pattern Background (Full Section) */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%2378350f'/%3E%3C/svg%3E")`,
         backgroundSize: '100px 100px'
       }} />
@@ -70,54 +70,52 @@ export default function DailyHadith() {
           {/* THE MIHRAB CONTAINER (Narrowed) */}
           <div className="relative mx-auto max-w-2xl">
             {/* The Outer Arch Frame */}
-            <div className="absolute -inset-4 bg-gradient-to-b from-amber-600 to-amber-900 rounded-t-[10rem] opacity-10 blur-2xl" />
+            <div className="absolute -inset-4 bg-gradient-to-b from-amber-600 to-amber-900 rounded-t-[10rem] opacity-5 blur-2xl" />
             
             {/* The Main Iconic Mihrab Shape Card */}
-            <div className="relative bg-white rounded-t-[10rem] rounded-b-[2rem] shadow-[0_40px_100px_rgba(120,53,15,0.15)] border-[10px] border-[#0a0a0a] overflow-hidden min-h-[480px] flex flex-col items-center justify-center">
+            <div className="relative bg-white rounded-t-[10rem] rounded-b-[2rem] shadow-[0_30px_70px_rgba(120,53,15,0.12)] border-[8px] border-[#0a0a0a] overflow-hidden min-h-[380px] flex flex-col items-center justify-center">
               
-              {/* INTERNAL MOTIF PATTERN */}
-              <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%2378350f'/%3E%3C/svg%3E")`,
-                backgroundSize: '60px 60px'
+              {/* INTERNAL MOTIF PATTERN - Richer Gold */}
+              <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z' fill='%23d97706'/%3E%3C/svg%3E")`,
+                backgroundSize: '40px 40px'
               }} />
 
               {/* Internal Gold Arch Border */}
-              <div className="absolute inset-2 border-2 border-amber-500/30 rounded-t-[9rem] rounded-b-[1.2rem] pointer-events-none" />
+              <div className="absolute inset-2 border border-amber-500/20 rounded-t-[9rem] rounded-b-[1.2rem] pointer-events-none" />
 
-              {/* Decorative Lanterns (Realistic SVG) */}
-              <div className="absolute top-0 left-16 flex flex-col items-center">
+              {/* Decorative Lanterns (Shorter) */}
+              <div className="absolute top-0 left-12 flex flex-col items-center opacity-80">
+                <div className="w-px h-16 bg-amber-600/40" />
+                <div className="w-8 h-12 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
+                   <div className="w-3 h-5 bg-amber-400 rounded-full blur-[3px] animate-pulse" />
+                </div>
+              </div>
+              <div className="absolute top-0 right-12 flex flex-col items-center opacity-80">
                 <div className="w-px h-24 bg-amber-600/40" />
-                <div className="w-10 h-14 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
-                   <div className="w-4 h-6 bg-amber-400 rounded-full blur-[4px] animate-pulse" />
-                   <div className="absolute -top-1 w-2 h-2 bg-amber-500 rounded-full" />
-                </div>
-              </div>
-              <div className="absolute top-0 right-16 flex flex-col items-center">
-                <div className="w-px h-36 bg-amber-600/40" />
-                <div className="w-10 h-14 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
-                   <div className="w-4 h-6 bg-amber-400 rounded-full blur-[4px] animate-pulse" />
-                   <div className="absolute -top-1 w-2 h-2 bg-amber-500 rounded-full" />
+                <div className="w-8 h-12 bg-[#1a1a1a] rounded-t-full border-2 border-amber-500 flex items-center justify-center relative shadow-lg">
+                   <div className="w-3 h-5 bg-amber-400 rounded-full blur-[3px] animate-pulse" />
                 </div>
               </div>
 
-              {/* Content Area */}
-              <div className="px-10 py-20 md:px-24 text-center space-y-12 relative z-20">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-amber-900/20">
-                    <Quote size={20} className="fill-current" />
+              {/* Content Area (More compact) */}
+              <div className="px-8 py-14 md:px-16 text-center space-y-8 relative z-20">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-black uppercase tracking-[0.4em] shadow-sm">
+                    <Quote size={12} className="fill-current" />
+                    Mutiara Hadits
                   </div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-700">Mutiara Hadits</div>
                 </div>
 
-                <h2 className="text-2xl md:text-4xl font-medium text-slate-800 leading-[1.6] font-outfit italic">
+                <h2 className="text-xl md:text-3xl font-medium text-slate-800 leading-[1.6] font-outfit italic">
                   "{hadith.content}"
                 </h2>
                 
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rotate-45 bg-amber-500" />
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
-                    <div className="w-2 h-2 rotate-45 bg-amber-500" />
+                <div className="flex flex-col items-center gap-5">
+                  <div className="flex items-center gap-2">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-400" />
+                    <div className="w-1.5 h-1.5 rotate-45 bg-amber-500" />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-400" />
                   </div>
                   <div className="space-y-2">
                     <p className="text-amber-700 font-black tracking-[0.3em] uppercase text-xs md:text-sm">
