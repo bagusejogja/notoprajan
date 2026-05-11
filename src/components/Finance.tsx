@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Wallet, ArrowUpRight } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Finance() {
@@ -27,15 +27,26 @@ export default function Finance() {
   return (
     <section className="py-24 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div className="space-y-4 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-600 text-sm font-semibold">
+              <Wallet size={14} />
+              <span>Transparansi</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold font-outfit text-indigo-950">Laporan Keuangan</h2>
+            <p className="text-slate-500 max-w-md">
+              Amanah jamaah adalah prioritas kami. Seluruh laporan keuangan dapat diakses secara transparan.
+            </p>
+          </div>
+          
+          <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-indigo-950 hover:bg-slate-50 transition-all shadow-sm">
+            Lihat Mutasi Bulanan
+            <ChevronRight size={16} className="text-emerald-500" />
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center text-left">
           <div className="space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-5xl font-bold font-outfit text-slate-900">Transparansi Keuangan</h2>
-              <p className="text-slate-500">
-                Kami berkomitmen menjaga amanah jamaah dengan melaporkan setiap rupiah yang masuk dan keluar secara real-time.
-              </p>
-            </div>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-100">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white mb-4">

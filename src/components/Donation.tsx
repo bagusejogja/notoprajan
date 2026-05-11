@@ -63,7 +63,10 @@ export default function Donation() {
               <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
                 <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">Informasi Rekening</div>
                 <div className="text-xl font-bold text-white tracking-wide">
-                  {settings?.bank_account || "Memuat..."}
+                  {settings?.bank_account?.split(' a.n ')[0] || "BSI 7264867848"}
+                  <div className="text-sm font-medium text-slate-400 mt-1 uppercase">
+                    a.n {settings?.bank_account?.split(' a.n ')[1] || "Masjid Notoprajan"}
+                  </div>
                 </div>
                 <div className="text-sm text-emerald-400 mt-1">Donasi Pembangunan & Operasional</div>
               </div>

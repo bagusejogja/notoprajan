@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import PrayerTimes from "@/components/PrayerTimes";
 import DailyHadith from "@/components/DailyHadith";
 import Schedules from "@/components/Schedules";
 import Marketplace from "@/components/Marketplace";
@@ -18,7 +19,7 @@ export default function Home() {
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
             </div>
-            <span className="font-outfit font-bold text-white text-lg tracking-tight hidden sm:block">SmartMosque</span>
+            <span className="font-outfit font-bold text-white text-lg tracking-tight hidden sm:block">Informasi Masjid</span>
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-slate-300 text-sm font-medium">
@@ -37,8 +38,12 @@ export default function Home() {
       {/* Hero Section (Includes Slider) */}
       <Hero />
 
-      {/* Daily Hadith Section */}
-      <DailyHadith />
+      <PrayerTimes />
+
+      <div className="pt-20">
+        {/* Daily Hadith Section */}
+        <DailyHadith />
+      </div>
 
       {/* Schedules Section */}
       <Schedules />

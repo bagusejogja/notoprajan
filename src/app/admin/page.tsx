@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
   // --- 3. FINANCE LOGIC ---
   const [financeList, setFinanceList] = useState<any[]>([]);
-  const [newFinance, setNewFinance] = useState({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "" });
+  const [newFinance, setNewFinance] = useState({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "", category: "Infaq" });
   const [editingFinance, setEditingFinance] = useState<any>(null);
 
   const fetchFinance = async () => {
@@ -97,10 +97,16 @@ export default function AdminDashboard() {
 
   const handleAddFinance = async () => {
     if (!newFinance.amount) return;
-    const payload = { date: newFinance.date, type: newFinance.type, amount: parseFloat(newFinance.amount), description: newFinance.description };
+    const payload = { 
+      date: newFinance.date, 
+      type: newFinance.type, 
+      amount: parseFloat(newFinance.amount), 
+      description: newFinance.description,
+      category: newFinance.category
+    };
     if (editingFinance) { await supabase.from('finance_reports').update(payload).eq('id', editingFinance.id); setEditingFinance(null); }
     else { await supabase.from('finance_reports').insert([payload]); }
-    setNewFinance({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "" });
+    setNewFinance({ date: new Date().toISOString().split('T')[0], type: "income", amount: "", description: "", category: "Infaq" });
     fetchFinance();
   };
 
@@ -233,29 +239,83 @@ export default function AdminDashboard() {
         {/* FINANCE TAB */}
         {activeTab === "finance" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left">
-            <div className="bg-white p-8 rounded-3xl border space-y-4 h-fit">
-              <h2 className="text-xl font-bold text-emerald-600">{editingFinance ? "Edit Data" : "Input Kas"}</h2>
-              <input type="date" value={newFinance.date} onChange={(e) => setNewFinance({...newFinance, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" />
-              <input type="text" value={newFinance.description} onChange={(e) => setNewFinance({...newFinance, description: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Keterangan" />
-              <input type="number" value={newFinance.amount} onChange={(e) => setNewFinance({...newFinance, amount: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl" placeholder="Nominal" />
-              <select value={newFinance.type} onChange={(e) => setNewFinance({...newFinance, type: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></select>
-              <button onClick={handleAddFinance} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Simpan</button>
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4 h-fit shadow-sm">
+              <h2 className="text-xl font-bold text-emerald-600">{editingFinance ? "Edit Transaksi" : "Tambah Transaksi"}</h2>
+              
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase">Tanggal</label>
+                <input type="date" value={newFinance.date} onChange={(e) => setNewFinance({...newFinance, date: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase">Kategori</label>
+                <select value={newFinance.category} onChange={(e) => setNewFinance({...newFinance, category: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl outline-none">
+                  <option value="Infaq">Infaq / Sedekah</option>
+                  <option value="Zakat">Zakat</option>
+                  <option value="Operasional">Operasional</option>
+                  <option value="Pembangunan">Pembangunan</option>
+                  <option value="Kegiatan">Kegiatan Masjid</option>
+                  <option value="Lain-lain">Lain-lain</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase">Keterangan</label>
+                <input type="text" value={newFinance.description} onChange={(e) => setNewFinance({...newFinance, description: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl outline-none" placeholder="Contoh: Infaq Jumat Pekan 1" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Tipe</label>
+                  <select value={newFinance.type} onChange={(e) => setNewFinance({...newFinance, type: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl outline-none">
+                    <option value="income">Masuk (+)</option>
+                    <option value="expense">Keluar (-)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Nominal</label>
+                  <input type="number" value={newFinance.amount} onChange={(e) => setNewFinance({...newFinance, amount: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl outline-none" placeholder="0" />
+                </div>
+              </div>
+
+              <button onClick={handleAddFinance} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">
+                {editingFinance ? "Update Data" : "Simpan Transaksi"}
+              </button>
+              {editingFinance && <button onClick={() => setEditingFinance(null)} className="w-full text-slate-400 text-sm font-medium py-2">Batal Edit</button>}
             </div>
-            <div className="lg:col-span-2 bg-white border rounded-3xl overflow-hidden shadow-sm">
+
+            <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b text-left"><tr><th className="p-4">Tanggal</th><th className="p-4">Ket</th><th className="p-4 text-right">Nominal</th><th className="p-4 text-center">Aksi</th></tr></thead>
-                <tbody className="divide-y">{financeList.map(f => (
-                  <tr key={f.id}>
-                    <td className="p-4">{f.date}</td>
-                    <td className="p-4 font-bold">{f.description}</td>
-                    <td className={`p-4 text-right font-bold ${f.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>Rp {parseFloat(f.amount).toLocaleString()}</td>
-                    <td className="p-4 text-center flex justify-center gap-2">
-                       <button onClick={() => {setEditingFinance(f); setNewFinance({date:f.date, type:f.type, amount:f.amount.toString(), description:f.description})}} className="p-2 text-indigo-500"><Edit2 size={16}/></button>
-                       <button onClick={async () => { if(confirm("Hapus?")){ await supabase.from('finance_reports').delete().eq('id', f.id); fetchFinance(); }}} className="p-2 text-rose-500"><Trash2 size={16}/></button>
-                    </td>
+                <thead className="bg-slate-50 border-b text-left">
+                  <tr>
+                    <th className="p-4 font-bold text-slate-500">Tanggal</th>
+                    <th className="p-4 font-bold text-slate-500">Kategori & Keterangan</th>
+                    <th className="p-4 text-right font-bold text-slate-500">Nominal</th>
+                    <th className="p-4 text-center font-bold text-slate-500">Aksi</th>
                   </tr>
-                ))}</tbody>
+                </thead>
+                <tbody className="divide-y">
+                  {financeList.map(f => (
+                    <tr key={f.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4 text-slate-500">{f.date}</td>
+                      <td className="p-4">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase mb-1 block w-fit">{f.category || "Umum"}</span>
+                        <div className="font-bold text-slate-900">{f.description}</div>
+                      </td>
+                      <td className={`p-4 text-right font-bold text-lg ${f.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {f.type === 'income' ? '+' : '-'} Rp {parseFloat(f.amount).toLocaleString('id-ID')}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
+                           <button onClick={() => {setEditingFinance(f); setNewFinance({date:f.date, type:f.type, amount:f.amount.toString(), description:f.description, category: f.category || "Infaq"})}} className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all"><Edit2 size={16}/></button>
+                           <button onClick={async () => { if(confirm("Hapus data ini?")){ await supabase.from('finance_reports').delete().eq('id', f.id); fetchFinance(); }}} className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all"><Trash2 size={16}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
+              {financeList.length === 0 && <div className="py-20 text-center text-slate-400 italic">Belum ada data keuangan.</div>}
             </div>
           </div>
         )}
