@@ -20,12 +20,20 @@ export default function PrayerTimes() {
       try {
         const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1505/${dateStr}`);
         const data = await res.json();
+        
+        // Dynamic Hijri Calculation with +1 day adjustment
+        const hijriDate = new Intl.DateTimeFormat('id-TN-u-ca-islamic-umalqura-nu-latn', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }).format(new Date(today.getTime() + (24 * 60 * 60 * 1000))); // +1 day adjustment
+
         if (data.status) {
           const j = data.data.jadwal;
           setTimes(j);
           setDates({
              gregorian: formattedGregorian,
-             hijri: data.data.date || "11 Dzulqa'dah 1445 H", 
+             hijri: hijriDate + " H", 
              javanese: getJavaneseDate(today)
           });
         }
@@ -117,7 +125,7 @@ export default function PrayerTimes() {
           </div>
           <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100">
             <CalIcon size={16} className="text-emerald-600" />
-            <span className="text-sm font-bold text-emerald-700">11 Dzulqa'dah 1445 H</span>
+            <span className="text-sm font-bold text-emerald-700">{dates.hijri}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin size={16} className="text-rose-500" />

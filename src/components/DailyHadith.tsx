@@ -67,16 +67,22 @@ export default function DailyHadith() {
           transition={{ duration: 1 }}
           className="relative group"
         >
-          {/* THE MIHRAB CONTAINER */}
-          <div className="relative mx-auto max-w-3xl">
+          {/* THE MIHRAB CONTAINER (Narrowed) */}
+          <div className="relative mx-auto max-w-2xl">
             {/* The Outer Arch Frame */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-600 to-amber-900 rounded-t-[10rem] opacity-10 blur-2xl" />
             
             {/* The Main Iconic Mihrab Shape Card */}
-            <div className="relative bg-white rounded-t-[12rem] rounded-b-[2rem] shadow-[0_40px_100px_rgba(120,53,15,0.15)] border-[12px] border-[#0a0a0a] overflow-hidden min-h-[500px] flex flex-col items-center justify-center">
+            <div className="relative bg-white rounded-t-[10rem] rounded-b-[2rem] shadow-[0_40px_100px_rgba(120,53,15,0.15)] border-[10px] border-[#0a0a0a] overflow-hidden min-h-[480px] flex flex-col items-center justify-center">
               
+              {/* INTERNAL MOTIF PATTERN */}
+              <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 15 15 5-15 5-5 15-5-15-15-5 15-5 5-15z' fill='%2378350f'/%3E%3C/svg%3E")`,
+                backgroundSize: '60px 60px'
+              }} />
+
               {/* Internal Gold Arch Border */}
-              <div className="absolute inset-2 border-2 border-amber-500/30 rounded-t-[11rem] rounded-b-[1.5rem] pointer-events-none" />
+              <div className="absolute inset-2 border-2 border-amber-500/30 rounded-t-[9rem] rounded-b-[1.2rem] pointer-events-none" />
 
               {/* Decorative Lanterns (Realistic SVG) */}
               <div className="absolute top-0 left-16 flex flex-col items-center">
