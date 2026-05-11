@@ -20,7 +20,7 @@ export default function Gallery() {
 
 
   return (
-    <section className="py-24 px-4 bg-white">
+    <section className="py-24 px-4 bg-white" id="galeri">
       <div className="max-w-6xl mx-auto space-y-12 text-center">
         <div className="space-y-4">
           <h2 className="text-3xl md:text-5xl font-bold font-outfit">Galeri Kegiatan</h2>

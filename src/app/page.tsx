@@ -27,6 +27,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8 text-slate-300 text-sm font-medium">
             <a href="#" className="hover:text-emerald-400 transition-colors">Beranda</a>
             <a href="#kegiatan" className="hover:text-emerald-400 transition-colors">Kegiatan</a>
+            <a href="#galeri" className="hover:text-emerald-400 transition-colors">Galeri</a>
             <a href="#market" className="hover:text-emerald-400 transition-colors">Pasar</a>
             <a href="#keuangan" className="hover:text-emerald-400 transition-colors">Keuangan</a>
             <a href="#faq" className="hover:text-emerald-400 transition-colors">Tanya Jawab</a>
@@ -56,6 +57,9 @@ export default function Home() {
       {/* News & Multimedia Section */}
       <News />
 
+      {/* Gallery Section */}
+      <Gallery />
+
       {/* Fundraising Section */}
       <Fundraising />
 
@@ -64,9 +68,6 @@ export default function Home() {
 
       {/* Support Section */}
       <Support />
-
-      {/* Gallery Section */}
-      <Gallery />
 
       {/* Donation Section */}
       <Donation />
