@@ -138,6 +138,27 @@ export default function AdminDashboard() {
     fetchFinance();
   };
 
+  const [bulkFinance, setBulkFinance] = useState("");
+  const handleBulkFinance = async () => {
+    if (!bulkFinance) return alert("Masukkan data keuangan!");
+    const lines = bulkFinance.split('\n');
+    const records = lines.map(line => {
+      const parts = line.split('|').map(s => s.trim());
+      if (!parts[0] || !parts[1]) return null;
+      return { 
+        title: parts[1], 
+        report_date: parts[0], 
+        total_income: Number(parts[2]) || 0, 
+        total_expenditure: Number(parts[3]) || 0, 
+        category: parts[4] || "Kas Masjid" 
+      };
+    }).filter(r => r !== null) as any[];
+    if (records.length > 0) {
+      await supabase.from('financial_reports').insert(records);
+      setBulkFinance(""); fetchFinance(); alert(`Berhasil mengunggah ${records.length} laporan keuangan!`);
+    }
+  };
+
   // --- DONATION ---
   const [donationList, setDonationList] = useState<any[]>([]);
   const [newDonation, setNewDonation] = useState({ title: "", description: "", target_amount: "", current_amount: "", deadline: "" });
@@ -367,9 +388,25 @@ export default function AdminDashboard() {
     fetchFaqs();
   };
 
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [signUpData, setSignUpData] = useState({ username: "", password: "", nama_lengkap: "", email: "", wa: "" });
+  const [rolePermissions, setRolePermissions] = useState<any[]>([]);
+
+  const fetchRolePermissions = async () => {
+    const { data } = await supabase.from('role_permissions').select('*').order('id', { ascending: true });
+    if (data) setRolePermissions(data);
+  };
+  const updateRoleMenu = async (rp: any, menuId: string, isChecked: boolean) => {
+    let newMenus = [...rp.menus];
+    if (isChecked && !newMenus.includes(menuId)) newMenus.push(menuId);
+    if (!isChecked) newMenus = newMenus.filter((m: string) => m !== menuId);
+    await supabase.from('role_permissions').update({ menus: newMenus }).eq('id', rp.id);
+    fetchRolePermissions();
+  };
+
   useEffect(() => {
     if (currentUser) {
-      fetchHadiths(); fetchHeroSlides(); fetchGallery(); fetchNews(); fetchFinance(); fetchDonations(); fetchFaqs(); fetchSettings(); fetchFriday();
+      fetchHadiths(); fetchHeroSlides(); fetchGallery(); fetchNews(); fetchFinance(); fetchDonations(); fetchFaqs(); fetchSettings(); fetchFriday(); fetchRolePermissions();
       if (currentUser.role === 'superadmin') fetchAdminUsers();
     }
   }, [currentUser, fridayPage]);
@@ -385,26 +422,59 @@ export default function AdminDashboard() {
     else alert("Username atau Password salah (atau tabel belum dibuat)!");
   };
 
+  const handleSignUp = async () => {
+    if (!signUpData.username || !signUpData.password || !signUpData.nama_lengkap) return alert("Username, Password, dan Nama Lengkap wajib diisi!");
+    // Default sign up is guest/humas until approved. Let's set it to 'humas' for basic access.
+    const { error } = await supabase.from('admin_users').insert([{ ...signUpData, role: 'humas' }]);
+    if (error) {
+       alert("Gagal mendaftar: " + error.message);
+    } else {
+       alert("Pendaftaran berhasil! Silakan login.");
+       setIsSignUp(false);
+       setUsername(signUpData.username);
+    }
+  };
+
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white p-10 rounded-[2.5rem] border w-full max-w-md shadow-2xl text-center space-y-8">
+        <div className="bg-white p-10 rounded-[2.5rem] border w-full max-w-md shadow-2xl text-center space-y-8 relative overflow-hidden">
            <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-lg shadow-emerald-500/30">M</div>
            <div className="space-y-1">
-             <h1 className="text-2xl font-bold font-outfit text-slate-800">Login Portal Admin</h1>
-             <p className="text-sm text-slate-500">Masuk sesuai hak akses Anda</p>
+             <h1 className="text-2xl font-bold font-outfit text-slate-800">{isSignUp ? "Daftar Akun Baru" : "Login Portal Admin"}</h1>
+             <p className="text-sm text-slate-500">{isSignUp ? "Lengkapi data diri Anda" : "Masuk sesuai hak akses Anda"}</p>
            </div>
-           <div className="space-y-4">
-             <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Username" />
-             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Password" />
-           </div>
-           <button onClick={handleLogin} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold tracking-widest hover:bg-emerald-600 transition-colors">LOGIN SEKARANG</button>
+           
+           {!isSignUp ? (
+             <>
+               <div className="space-y-4">
+                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Username" />
+                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Password" />
+               </div>
+               <button onClick={handleLogin} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold tracking-widest hover:bg-emerald-600 transition-colors shadow-lg">LOGIN SEKARANG</button>
+               <div className="text-sm text-slate-500">Belum punya akun? <button onClick={() => setIsSignUp(true)} className="text-emerald-600 font-bold hover:underline">Daftar di sini</button></div>
+             </>
+           ) : (
+             <>
+               <div className="space-y-3 text-left">
+                 <input type="text" value={signUpData.nama_lengkap} onChange={(e) => setSignUpData({...signUpData, nama_lengkap: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Nama Lengkap *" />
+                 <input type="text" value={signUpData.username} onChange={(e) => setSignUpData({...signUpData, username: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Username *" />
+                 <input type="password" value={signUpData.password} onChange={(e) => setSignUpData({...signUpData, password: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Password *" />
+                 <input type="email" value={signUpData.email} onChange={(e) => setSignUpData({...signUpData, email: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Email" />
+                 <input type="text" value={signUpData.wa} onChange={(e) => setSignUpData({...signUpData, wa: e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Nomor WhatsApp" />
+               </div>
+               <div className="flex gap-2">
+                 <button onClick={() => setIsSignUp(false)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-xl font-bold">Batal</button>
+                 <button onClick={handleSignUp} className="flex-[2] bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg">DAFTAR</button>
+               </div>
+             </>
+           )}
         </div>
       </div>
     );
   }
 
-  const allSidebarItems = [
+  let allSidebarItems = [
     { id: "hero", label: "Slider Header", icon: ImageIcon, roles: ["superadmin", "humas"] },
     { id: "friday", label: "Jadwal Jumatan", icon: BookOpen, roles: ["superadmin", "humas", "takmir"] },
     { id: "gallery", label: "Galeri Foto", icon: Plus, roles: ["superadmin", "humas"] },
@@ -416,6 +486,14 @@ export default function AdminDashboard() {
     { id: "qa", label: "Tanya Jawab", icon: MessageCircle, roles: ["superadmin", "humas"] },
     { id: "users", label: "Manajemen User", icon: Users, roles: ["superadmin"] },
   ];
+
+  if (rolePermissions.length > 0) {
+     allSidebarItems = allSidebarItems.map(item => {
+        let dynamicRoles = rolePermissions.filter(rp => rp.menus.includes(item.id)).map(rp => rp.role);
+        if (!dynamicRoles.includes("superadmin")) dynamicRoles.push("superadmin");
+        return { ...item, roles: dynamicRoles.length > 0 ? dynamicRoles : item.roles };
+     });
+  }
 
   const sidebarItems = allSidebarItems.filter(item => item.roles.includes(currentUser.role));
 
@@ -577,6 +655,13 @@ export default function AdminDashboard() {
                     ))}
                  </tbody>
                </table>
+            </div>
+            
+            <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 mt-4">
+               <h3 className="font-bold mb-2">Bulk Upload Keuangan</h3>
+               <p className="text-[10px] text-emerald-700 mb-2 uppercase font-bold">Format: Tanggal (YYYY-MM-DD) | Keterangan | Nominal Masuk | Nominal Keluar | Kategori</p>
+               <textarea value={bulkFinance} onChange={(e) => setBulkFinance(e.target.value)} className="w-full bg-white border p-3 rounded-xl h-24 mb-3" placeholder="2024-12-25 | Infaq Jumat | 1500000 | 0 | Kas Masjid" />
+               <button onClick={handleBulkFinance} className="bg-emerald-600 text-white px-6 py-2 rounded-lg text-sm font-bold">Upload Massal</button>
             </div>
           </div>
         )}
@@ -1049,6 +1134,24 @@ export default function AdminDashboard() {
                     </tbody>
                  </table>
               </div>
+
+               <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-4">
+                  <h3 className="font-bold text-emerald-600">Manajemen Hak Akses Menu (Role Permissions)</h3>
+                  {rolePermissions.length === 0 && <p className="text-sm text-rose-500 font-bold bg-rose-50 p-4 rounded-xl border">Tabel 'role_permissions' belum dibuat/diisi di Supabase! Menggunakan akses bawaan.</p>}
+                  {rolePermissions.map(rp => (
+                     <div key={rp.id} className="border p-6 rounded-2xl bg-slate-50">
+                        <div className="font-black mb-3 uppercase text-sm tracking-widest text-slate-800">{rp.role}</div>
+                        <div className="flex flex-wrap gap-3">
+                           {allSidebarItems.map(item => (
+                              <label key={item.id} className={`flex items-center gap-2 text-xs border p-3 rounded-xl cursor-pointer transition-all ${rp.menus.includes(item.id) ? 'bg-emerald-500 text-white border-emerald-600 font-bold shadow-md' : 'bg-white text-slate-500 hover:bg-slate-100'}`}>
+                                 <input type="checkbox" className="hidden" checked={rp.menus.includes(item.id)} onChange={(e) => updateRoleMenu(rp, item.id, e.target.checked)} />
+                                 {rp.menus.includes(item.id) ? "✓" : "+"} {item.label}
+                              </label>
+                           ))}
+                        </div>
+                     </div>
+                  ))}
+               </div>
            </div>
         )}
       </main>
