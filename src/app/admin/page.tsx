@@ -10,7 +10,8 @@ import { supabase } from "@/lib/supabase";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("hadith");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -145,6 +146,26 @@ export default function AdminDashboard() {
   const [donationLogs, setDonationLogs] = useState<any[]>([]);
   const [newLog, setNewLog] = useState({ donor_name: "", via: "BSI", amount: "", donation_date: new Date().toISOString().split('T')[0] });
   const [editingLog, setEditingLog] = useState<any>(null);
+  const [bulkLog, setBulkLog] = useState("");
+
+  // --- USER MANAGEMENT ---
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
+  const [newUser, setNewUser] = useState({ username: "", password: "", role: "humas", nama_lengkap: "" });
+  const fetchAdminUsers = async () => {
+    const { data } = await supabase.from('admin_users').select('*').order('id', { ascending: true });
+    if (data) setAdminUsers(data);
+  };
+  const handleSaveUser = async () => {
+    if (!newUser.username || !newUser.password) return alert("Username dan Password wajib!");
+    await supabase.from('admin_users').insert([newUser]);
+    setNewUser({ username: "", password: "", role: "humas", nama_lengkap: "" });
+    fetchAdminUsers();
+  };
+  const deleteUser = async (id: number) => {
+    if(!confirm("Hapus user?")) return;
+    await supabase.from('admin_users').delete().eq('id', id);
+    fetchAdminUsers();
+  };
 
   async function fetchDonations() {
     // Safe Fetch: Get all and filter in JS
@@ -208,6 +229,31 @@ export default function AdminDashboard() {
     fetchLogs(selectedCampaign.id); 
     fetchDonations();
     alert("Data Donatur Berhasil Disimpan!");
+  };
+
+  const handleBulkLog = async () => {
+    if (!bulkLog || !selectedCampaign) return alert("Masukkan data donatur!");
+    const lines = bulkLog.split('\n');
+    const records = lines.map(line => {
+      const parts = line.split('|').map(s => s.trim());
+      if (!parts[0] || !parts[1]) return null;
+      return { 
+         donor_name: parts[0], 
+         via: parts[1] || "BSI", 
+         amount: Number(parts[2]) || 0, 
+         donation_date: parts[3] || new Date().toISOString().split('T')[0],
+         campaign_id: selectedCampaign.id
+      };
+    }).filter(r => r !== null && r.amount > 0) as any[];
+    
+    if (records.length > 0) {
+      await supabase.from('donation_logs').insert(records);
+      const { data: allLogs } = await supabase.from('donation_logs').select('amount').eq('campaign_id', selectedCampaign.id);
+      const newTotal = allLogs?.reduce((sum, l) => sum + l.amount, 0) || 0;
+      await supabase.from('donation_campaigns').update({ current_amount: newTotal }).eq('id', selectedCampaign.id);
+      setSelectedCampaign({ ...selectedCampaign, current_amount: newTotal });
+      setBulkLog(""); fetchLogs(selectedCampaign.id); fetchDonations(); alert(`Berhasil mengunggah ${records.length} donatur!`);
+    }
   };
 
   // --- SETTINGS (PROFIL MASJID) ---
@@ -322,41 +368,67 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (currentUser) {
       fetchHadiths(); fetchHeroSlides(); fetchGallery(); fetchNews(); fetchFinance(); fetchDonations(); fetchFaqs(); fetchSettings(); fetchFriday();
+      if (currentUser.role === 'superadmin') fetchAdminUsers();
     }
-  }, [isLoggedIn, fridayPage]);
+  }, [currentUser, fridayPage]);
 
-  if (!isLoggedIn) {
+  const handleLogin = async () => {
+    // Fallback darurat jika tabel admin_users belum dibuat
+    if (username === "admin" && password === "1") {
+      setCurrentUser({ username: "admin", role: "superadmin", nama_lengkap: "Admin Utama" });
+      return;
+    }
+    const { data, error } = await supabase.from('admin_users').select('*').eq('username', username).eq('password', password).single();
+    if (data) setCurrentUser(data);
+    else alert("Username atau Password salah (atau tabel belum dibuat)!");
+  };
+
+  if (!currentUser) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="bg-white p-10 rounded-[2.5rem] border w-full max-w-md shadow-2xl text-center space-y-8">
-           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto">M</div>
-           <h1 className="text-2xl font-bold font-outfit">Admin Notoprajan</h1>
-           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none" placeholder="Password" />
-           <button onClick={() => password === "1" ? setIsLoggedIn(true) : alert("Salah!")} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold">Login</button>
+           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-lg shadow-emerald-500/30">M</div>
+           <div className="space-y-1">
+             <h1 className="text-2xl font-bold font-outfit text-slate-800">Login Portal Admin</h1>
+             <p className="text-sm text-slate-500">Masuk sesuai hak akses Anda</p>
+           </div>
+           <div className="space-y-4">
+             <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Username" />
+             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className="w-full bg-slate-50 border p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Password" />
+           </div>
+           <button onClick={handleLogin} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold tracking-widest hover:bg-emerald-600 transition-colors">LOGIN SEKARANG</button>
         </div>
       </div>
     );
   }
 
-  const sidebarItems = [
-    { id: "hero", label: "Slider Header", icon: ImageIcon },
-    { id: "friday", label: "Jadwal Jumatan", icon: BookOpen },
-    { id: "gallery", label: "Galeri Foto", icon: Plus },
-    { id: "hadith", label: "Hadits Harian", icon: Quote },
-    { id: "news", label: "Berita & Kajian", icon: Newspaper },
-    { id: "finance", label: "Keuangan", icon: Wallet },
-    { id: "donation", label: "Donasi Khusus", icon: Target },
-    { id: "settings", label: "Profil & Rekening", icon: Settings },
-    { id: "qa", label: "Tanya Jawab", icon: MessageCircle },
+  const allSidebarItems = [
+    { id: "hero", label: "Slider Header", icon: ImageIcon, roles: ["superadmin", "humas"] },
+    { id: "friday", label: "Jadwal Jumatan", icon: BookOpen, roles: ["superadmin", "humas", "takmir"] },
+    { id: "gallery", label: "Galeri Foto", icon: Plus, roles: ["superadmin", "humas"] },
+    { id: "hadith", label: "Hadits Harian", icon: Quote, roles: ["superadmin", "humas", "takmir"] },
+    { id: "news", label: "Berita & Kajian", icon: Newspaper, roles: ["superadmin", "humas"] },
+    { id: "finance", label: "Keuangan", icon: Wallet, roles: ["superadmin", "bendahara"] },
+    { id: "donation", label: "Donasi Khusus", icon: Target, roles: ["superadmin", "bendahara"] },
+    { id: "settings", label: "Profil & Rekening", icon: Settings, roles: ["superadmin"] },
+    { id: "qa", label: "Tanya Jawab", icon: MessageCircle, roles: ["superadmin", "humas"] },
+    { id: "users", label: "Manajemen User", icon: Users, roles: ["superadmin"] },
   ];
+
+  const sidebarItems = allSidebarItems.filter(item => item.roles.includes(currentUser.role));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-inter">
-      <aside className="w-64 border-r border-slate-200 bg-white p-6 flex flex-col justify-between shadow-sm">
+      <aside className="w-64 border-r border-slate-200 bg-white p-6 flex flex-col justify-between shadow-sm z-10">
         <div className="space-y-8">
-          <div className="font-outfit font-bold text-xl text-emerald-600 px-2">Notoprajan Admin</div>
+          <div className="space-y-2">
+            <div className="font-outfit font-black text-2xl text-emerald-600 px-2 tracking-tight">Portal Admin</div>
+            <div className="px-2">
+              <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest">{currentUser.role}</span>
+            </div>
+          </div>
           <nav className="flex flex-col gap-2">
             {sidebarItems.map(item => (
               <button key={item.id} onClick={() => { setActiveTab(item.id); setSelectedCampaign(null); }} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id ? "bg-emerald-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-100"}`}>
@@ -367,7 +439,7 @@ export default function AdminDashboard() {
           </nav>
         </div>
         
-        <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all font-bold">
+        <button onClick={() => { setCurrentUser(null); setPassword(""); setUsername(""); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all font-bold">
           <LogOut size={20} />
           <span className="text-sm">Logout</span>
         </button>
@@ -670,6 +742,13 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+                
+                <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                   <h3 className="font-bold mb-2">Bulk Upload Donatur</h3>
+                   <p className="text-[10px] text-emerald-700 mb-2 uppercase font-bold">Format: Nama | Metode (BSI/Tunai/QRIS) | Nominal | Tanggal (YYYY-MM-DD)</p>
+                   <textarea value={bulkLog} onChange={(e) => setBulkLog(e.target.value)} className="w-full bg-white border p-3 rounded-xl h-24 mb-3" placeholder="Hamba Allah | BSI | 500000 | 2024-12-25" />
+                   <button onClick={handleBulkLog} className="bg-emerald-600 text-white px-6 py-2 rounded-lg text-sm font-bold">Upload Massal</button>
+                </div>
               </div>
             )}
           </div>
@@ -910,6 +989,57 @@ export default function AdminDashboard() {
                      ))
                   )}
                </div>
+           </div>
+        )}
+        {activeTab === "users" && currentUser?.role === "superadmin" && (
+           <div className="space-y-8 text-left">
+              <div className="flex justify-between items-center">
+                 <h2 className="text-2xl font-bold">Manajemen User (RBAC)</h2>
+                 <span className="bg-rose-100 text-rose-600 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Akses Khusus Superadmin</span>
+              </div>
+              
+              <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-4">
+                 <h3 className="font-bold text-emerald-600">Tambah Akun Baru</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" value={newUser.nama_lengkap} onChange={(e) => setNewUser({...newUser, nama_lengkap: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Nama Lengkap Pemilik Akun" />
+                    <input type="text" value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Username (Untuk Login)" />
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Password" />
+                    <select value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl font-bold text-emerald-700">
+                       <option value="superadmin">Superadmin (Akses Penuh)</option>
+                       <option value="bendahara">Bendahara (Keuangan & Donasi)</option>
+                       <option value="humas">Humas / Admin Konten (Berita, Hadits, Galeri)</option>
+                    </select>
+                 </div>
+                 <button onClick={handleSaveUser} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg">Buat Akun Sekarang</button>
+              </div>
+
+              <div className="bg-white border rounded-3xl overflow-hidden shadow-sm">
+                 <div className="p-4 bg-slate-50 border-b font-bold flex justify-between">
+                    <span>Daftar Akun Terdaftar</span>
+                    <span className="text-[10px] uppercase font-black text-emerald-600 tracking-widest">{adminUsers.length} Akun</span>
+                 </div>
+                 <table className="w-full text-sm text-left">
+                    <thead className="bg-slate-50 font-bold border-b"><tr><th className="p-4">Username</th><th className="p-4">Nama Lengkap</th><th className="p-4">Role Akses</th><th className="p-4 text-center">Aksi</th></tr></thead>
+                    <tbody className="divide-y">
+                       {adminUsers.map(u => (
+                          <tr key={u.id} className="hover:bg-slate-50">
+                             <td className="p-4 font-bold">{u.username}</td>
+                             <td className="p-4 text-slate-500">{u.nama_lengkap || "-"}</td>
+                             <td className="p-4">
+                                <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${u.role === 'superadmin' ? 'bg-rose-100 text-rose-600' : u.role === 'bendahara' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                   {u.role}
+                                </span>
+                             </td>
+                             <td className="p-4 text-center">
+                                <button onClick={() => deleteUser(u.id)} className="p-2 text-rose-500 hover:scale-110 transition-transform"><Trash2 size={16}/></button>
+                             </td>
+                          </tr>
+                       ))}
+                    </tbody>
+                 </table>
+              </div>
            </div>
         )}
       </main>
