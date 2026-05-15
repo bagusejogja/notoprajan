@@ -150,7 +150,7 @@ export default function AdminDashboard() {
 
   // --- USER MANAGEMENT ---
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
-  const [newUser, setNewUser] = useState({ username: "", password: "", role: "humas", nama_lengkap: "" });
+  const [newUser, setNewUser] = useState({ username: "", password: "", role: "humas", nama_lengkap: "", email: "", wa: "" });
   const fetchAdminUsers = async () => {
     const { data } = await supabase.from('admin_users').select('*').order('id', { ascending: true });
     if (data) setAdminUsers(data);
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
   const handleSaveUser = async () => {
     if (!newUser.username || !newUser.password) return alert("Username dan Password wajib!");
     await supabase.from('admin_users').insert([newUser]);
-    setNewUser({ username: "", password: "", role: "humas", nama_lengkap: "" });
+    setNewUser({ username: "", password: "", role: "humas", nama_lengkap: "", email: "", wa: "" });
     fetchAdminUsers();
   };
   const deleteUser = async (id: number) => {
@@ -1005,6 +1005,10 @@ export default function AdminDashboard() {
                     <input type="text" value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Username (Untuk Login)" />
                  </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="email" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Alamat Email" />
+                    <input type="text" value={newUser.wa} onChange={(e) => setNewUser({...newUser, wa: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="No. WA (08...)" />
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Password" />
                     <select value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl font-bold text-emerald-700">
                        <option value="superadmin">Superadmin (Akses Penuh)</option>
@@ -1021,12 +1025,17 @@ export default function AdminDashboard() {
                     <span className="text-[10px] uppercase font-black text-emerald-600 tracking-widest">{adminUsers.length} Akun</span>
                  </div>
                  <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 font-bold border-b"><tr><th className="p-4">Username</th><th className="p-4">Nama Lengkap</th><th className="p-4">Role Akses</th><th className="p-4 text-center">Aksi</th></tr></thead>
+                    <thead className="bg-slate-50 font-bold border-b"><tr><th className="p-4">Username</th><th className="p-4">Nama Lengkap</th><th className="p-4">Kontak</th><th className="p-4">Role Akses</th><th className="p-4 text-center">Aksi</th></tr></thead>
                     <tbody className="divide-y">
                        {adminUsers.map(u => (
                           <tr key={u.id} className="hover:bg-slate-50">
                              <td className="p-4 font-bold">{u.username}</td>
                              <td className="p-4 text-slate-500">{u.nama_lengkap || "-"}</td>
+                             <td className="p-4 text-xs text-slate-500 space-y-1">
+                                {u.email && <div>✉️ {u.email}</div>}
+                                {u.wa && <div>📱 {u.wa}</div>}
+                                {!u.email && !u.wa && "-"}
+                             </td>
                              <td className="p-4">
                                 <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${u.role === 'superadmin' ? 'bg-rose-100 text-rose-600' : u.role === 'bendahara' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                    {u.role}
