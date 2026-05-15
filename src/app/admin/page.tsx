@@ -413,6 +413,20 @@ export default function AdminDashboard() {
     await supabase.from('role_permissions').update({ crud: newCrud }).eq('id', rp.id);
     fetchRolePermissions();
   };
+  const [newRoleName, setNewRoleName] = useState("");
+  const handleAddRole = async () => {
+    if (!newRoleName.trim()) return alert("Nama aktor wajib diisi!");
+    const roleName = newRoleName.toLowerCase().replace(/\s+/g, '_');
+    const { error } = await supabase.from('role_permissions').insert([{ role: roleName, menus: [], crud: {} }]);
+    if (error) return alert("Gagal: " + error.message);
+    setNewRoleName(""); fetchRolePermissions();
+  };
+  const handleDeleteRole = async (id: number, role: string) => {
+    if (role === 'superadmin') return alert("Role superadmin tidak bisa dihapus!");
+    if (!confirm(`Hapus aktor "${role}"? User dengan role ini tidak bisa login.`)) return;
+    await supabase.from('role_permissions').delete().eq('id', id);
+    fetchRolePermissions();
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -1106,9 +1120,16 @@ export default function AdminDashboard() {
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl" placeholder="Password" />
                     <select value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})} className="w-full bg-slate-50 border p-4 rounded-xl font-bold text-emerald-700">
-                       <option value="superadmin">Superadmin (Akses Penuh)</option>
-                       <option value="bendahara">Bendahara (Keuangan & Donasi)</option>
-                       <option value="humas">Humas / Admin Konten (Berita, Hadits, Galeri)</option>
+                       {rolePermissions.length > 0 
+                         ? rolePermissions.map(rp => (
+                             <option key={rp.role} value={rp.role}>{rp.role.charAt(0).toUpperCase() + rp.role.slice(1).replace(/_/g, ' ')}</option>
+                           ))
+                         : (<>
+                             <option value="superadmin">Superadmin</option>
+                             <option value="bendahara">Bendahara</option>
+                             <option value="humas">Humas</option>
+                           </>)
+                       }
                     </select>
                  </div>
                  <button onClick={handleSaveUser} className="w-full bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg">Buat Akun Sekarang</button>
@@ -1146,14 +1167,25 @@ export default function AdminDashboard() {
               </div>
 
                <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-6">
-                  <div>
-                     <h3 className="font-bold text-emerald-600 text-lg">Manajemen Hak Akses Menu (Role Permissions)</h3>
-                     <p className="text-xs text-slate-400 mt-1">Centang menu untuk mengaktifkan akses, lalu atur izin C/R/U/D per menu.</p>
+                  <div className="flex justify-between items-start">
+                     <div>
+                        <h3 className="font-bold text-emerald-600 text-lg">Manajemen Hak Akses & Aktor</h3>
+                        <p className="text-xs text-slate-400 mt-1">Tambah aktor baru, centang menu aksesnya, dan atur izin C/R/U/D.</p>
+                     </div>
+                     <div className="flex gap-2 items-center">
+                        <input type="text" value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddRole()} className="bg-slate-50 border p-3 rounded-xl text-sm" placeholder="Nama aktor baru (misal: takmir)" style={{minWidth:'200px'}} />
+                        <button onClick={handleAddRole} className="bg-emerald-500 text-white px-5 py-3 rounded-xl text-sm font-bold whitespace-nowrap hover:bg-emerald-600 transition-colors">+ Tambah Aktor</button>
+                     </div>
                   </div>
                   {rolePermissions.length === 0 && <p className="text-sm text-rose-500 font-bold bg-rose-50 p-4 rounded-xl border">Tabel belum diisi! Jalankan SQL INSERT untuk role_permissions di Supabase.</p>}
                   {rolePermissions.map(rp => (
                      <div key={rp.id} className="border rounded-2xl overflow-hidden">
-                        <div className={`px-6 py-3 font-black uppercase text-sm tracking-widest text-white ${ rp.role === 'superadmin' ? 'bg-rose-500' : rp.role === 'bendahara' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>{rp.role}</div>
+                        <div className={`px-6 py-3 font-black uppercase text-sm tracking-widest text-white flex justify-between items-center ${ rp.role === 'superadmin' ? 'bg-rose-500' : rp.role === 'bendahara' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>
+                           <span>{rp.role.replace(/_/g, ' ')}</span>
+                           {rp.role !== 'superadmin' && (
+                              <button onClick={() => handleDeleteRole(rp.id, rp.role)} className="text-white/60 hover:text-white text-xs font-bold border border-white/30 px-2 py-1 rounded-lg">Hapus Aktor</button>
+                           )}
+                        </div>
                         <div className="p-4 space-y-3 bg-slate-50">
                            {allSidebarItems.map(item => {
                               const hasAccess = rp.menus.includes(item.id);
