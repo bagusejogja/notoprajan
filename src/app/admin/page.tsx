@@ -403,6 +403,16 @@ export default function AdminDashboard() {
     await supabase.from('role_permissions').update({ menus: newMenus }).eq('id', rp.id);
     fetchRolePermissions();
   };
+  const updateRoleCrud = async (rp: any, menuId: string, action: string, isChecked: boolean) => {
+    const currentCrud = rp.crud || {};
+    const currentActions: string[] = currentCrud[menuId] || [];
+    let newActions = [...currentActions];
+    if (isChecked && !newActions.includes(action)) newActions.push(action);
+    if (!isChecked) newActions = newActions.filter(a => a !== action);
+    const newCrud = { ...currentCrud, [menuId]: newActions };
+    await supabase.from('role_permissions').update({ crud: newCrud }).eq('id', rp.id);
+    fetchRolePermissions();
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -1135,19 +1145,51 @@ export default function AdminDashboard() {
                  </table>
               </div>
 
-               <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-4">
-                  <h3 className="font-bold text-emerald-600">Manajemen Hak Akses Menu (Role Permissions)</h3>
-                  {rolePermissions.length === 0 && <p className="text-sm text-rose-500 font-bold bg-rose-50 p-4 rounded-xl border">Tabel 'role_permissions' belum dibuat/diisi di Supabase! Menggunakan akses bawaan.</p>}
+               <div className="bg-white p-8 rounded-3xl border shadow-sm space-y-6">
+                  <div>
+                     <h3 className="font-bold text-emerald-600 text-lg">Manajemen Hak Akses Menu (Role Permissions)</h3>
+                     <p className="text-xs text-slate-400 mt-1">Centang menu untuk mengaktifkan akses, lalu atur izin C/R/U/D per menu.</p>
+                  </div>
+                  {rolePermissions.length === 0 && <p className="text-sm text-rose-500 font-bold bg-rose-50 p-4 rounded-xl border">Tabel belum diisi! Jalankan SQL INSERT untuk role_permissions di Supabase.</p>}
                   {rolePermissions.map(rp => (
-                     <div key={rp.id} className="border p-6 rounded-2xl bg-slate-50">
-                        <div className="font-black mb-3 uppercase text-sm tracking-widest text-slate-800">{rp.role}</div>
-                        <div className="flex flex-wrap gap-3">
-                           {allSidebarItems.map(item => (
-                              <label key={item.id} className={`flex items-center gap-2 text-xs border p-3 rounded-xl cursor-pointer transition-all ${rp.menus.includes(item.id) ? 'bg-emerald-500 text-white border-emerald-600 font-bold shadow-md' : 'bg-white text-slate-500 hover:bg-slate-100'}`}>
-                                 <input type="checkbox" className="hidden" checked={rp.menus.includes(item.id)} onChange={(e) => updateRoleMenu(rp, item.id, e.target.checked)} />
-                                 {rp.menus.includes(item.id) ? "✓" : "+"} {item.label}
-                              </label>
-                           ))}
+                     <div key={rp.id} className="border rounded-2xl overflow-hidden">
+                        <div className={`px-6 py-3 font-black uppercase text-sm tracking-widest text-white ${ rp.role === 'superadmin' ? 'bg-rose-500' : rp.role === 'bendahara' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>{rp.role}</div>
+                        <div className="p-4 space-y-3 bg-slate-50">
+                           {allSidebarItems.map(item => {
+                              const hasAccess = rp.menus.includes(item.id);
+                              const crud = (rp.crud || {})[item.id] || [];
+                              return (
+                                 <div key={item.id} className={`p-4 rounded-xl border transition-all ${hasAccess ? 'bg-white border-emerald-200' : 'bg-slate-100 border-transparent opacity-60'}`}>
+                                    <div className="flex items-center justify-between">
+                                       <label className="flex items-center gap-2 cursor-pointer">
+                                          <input type="checkbox" checked={hasAccess} onChange={(e) => updateRoleMenu(rp, item.id, e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+                                          <span className={`text-sm font-bold ${hasAccess ? 'text-slate-800' : 'text-slate-400'}`}>{item.label}</span>
+                                       </label>
+                                       {hasAccess && (
+                                          <div className="flex gap-2">
+                                             {(['C','R','U','D'] as const).map(action => {
+                                                const actionKey = action === 'C' ? 'create' : action === 'R' ? 'read' : action === 'U' ? 'update' : 'delete';
+                                                const hasCrud = crud.includes(actionKey);
+                                                return (
+                                                   <button key={action} onClick={() => updateRoleCrud(rp, item.id, actionKey, !hasCrud)}
+                                                      className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all ${
+                                                         hasCrud
+                                                         ? action === 'C' ? 'bg-emerald-500 text-white' 
+                                                           : action === 'R' ? 'bg-indigo-500 text-white' 
+                                                           : action === 'U' ? 'bg-amber-500 text-white' 
+                                                           : 'bg-rose-500 text-white'
+                                                         : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                                                      }`}>
+                                                      {action}
+                                                   </button>
+                                                );
+                                             })}
+                                          </div>
+                                       )}
+                                    </div>
+                                 </div>
+                              );
+                           })}
                         </div>
                      </div>
                   ))}
