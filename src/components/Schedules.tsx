@@ -12,12 +12,11 @@ export default function Schedules() {
     async function fetchData() {
       const today = new Date().toISOString().split('T')[0];
 
-      // Fetch upcoming studies
+      // Fetch upcoming studies (Dihapus filter gte sementara agar data user muncul)
       const { data: studyData } = await supabase
         .from('study_schedules')
         .select('*')
-        .gte('date', today)
-        .order('date', { ascending: true })
+        .order('date', { ascending: false }) // Tampilkan yang terbaru di atas
         .limit(3);
       if (studyData) setStudies(studyData);
 
@@ -30,6 +29,11 @@ export default function Schedules() {
         .limit(1)
         .single();
       if (fridayData) setFriday(fridayData);
+      else {
+        // Jika tidak ada yang akan datang, ambil yang terakhir
+        const { data: lastFriday } = await supabase.from('friday_schedules').select('*').order('date', { ascending: false }).limit(1).single();
+        if (lastFriday) setFriday(lastFriday);
+      }
     }
     fetchData();
   }, []);
@@ -77,17 +81,7 @@ export default function Schedules() {
                     </div>
                     <div className="text-left">
                       <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Khotib</span>
-                      <span className="text-xl font-bold">{friday?.kotib || friday?.khotib || "-"}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                      <User size={20} className="text-emerald-400" />
-                    </div>
-                    <div className="text-left">
-                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Tema</span>
-                      <span className="text-xl font-bold">{friday?.tema || friday?.theme || "-"}</span>
+                      <span className="text-xl font-bold">{friday?.khotib || friday?.kotib || "-"}</span>
                     </div>
                   </div>
 
